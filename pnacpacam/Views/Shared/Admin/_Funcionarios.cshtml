@@ -1,0 +1,52 @@
+﻿<!-- Modal Nuevo Usuarios en BD Insumo -->
+<div class="modal fade" id="nuevoFuncionario" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabelInsumo">Funcionario Nuevo</h4>
+            </div>
+            <form id="formFuncionario">
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="form-group">
+                                <!--
+                                <input name="id_FuncionarioInsumo" id="id_FuncionarioInsumo" class="form-control" type="hidden" min="0" max="10000000" />
+                                -->
+
+                                <label for="rutInsumo">Rut Funcionario :</label>
+                                <input id="rutInsumo" name="rutInsumo" type="text" class="form-control " placeholder="Rut" maxlength="12" value="" required>
+                                <label id="rutInsumo-error" class="error" for="rutInsumo"></label>
+
+                                <label for="nombreInsumo">Nombre :</label>
+                                <input id="nombreInsumo" name="nombreInsumo" type="text" class="form-control " maxlength="100" placeholder="Nombre" value="" required>
+
+                                <label for="apellidoInsumo">Apellido :</label>
+                                <input id="apellidoInsumo" name="apellidoInsumo" type="text" class="form-control " placeholder="Apellido" maxlength="100" value="" required>
+
+
+                                <label for="emailInsumo">Correo Electrónico :</label>
+                                <div class="input-group">
+                                    <input id="emailInsumo" name="emailInsumo" type="text" class="form-control " placeholder="E-Mail" maxlength="38" value="" required>
+                                    <div class="input-group-addon">&#64;cenabast.cl</div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-principal">Guardar</button>
+                    <button type="button" class="btn btn-secundario" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

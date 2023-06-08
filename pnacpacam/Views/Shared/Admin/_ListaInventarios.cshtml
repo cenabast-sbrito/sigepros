@@ -1,0 +1,51 @@
+﻿<div class="row panel-titulo">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <h3>Detalle de inventario</h3>
+    </div>
+</div>
+
+
+
+@Html.AntiForgeryToken()
+
+<div class="row">
+
+    <div class="col-md-12">
+        <h4><strong>Inventarios</strong></h4>
+    </div>
+
+
+    <div class="row" style="margin:50px 0 35px 20px">
+
+        <div class="col-md-4">
+            <label>Identificador del Inventario</label>
+            <select class="form-control select2" name="optionIdInventarioSeleccionado" id="optionIdInventarioSeleccionado">
+                <option value=""></option>
+            </select>
+        </div>
+
+        <div class="col-md-1" style="margin-top:20px">
+            <button id="btnListaInventariosBuscar" name="btnListaInventariosBuscar" class="btn btn-sm btn-primary">Buscar</button>
+        </div>
+
+    </div>
+
+    <div class="tablas">
+        <table id="tablaInventarioDetalleById" class="table table-hover table-bordered table-striped table-border-blue" width="100%">
+            <thead class="table-blue">
+                <tr>
+                    <td>Identificador Inventario</td>
+                    <th>Código Producto</th>
+                    <th>Denominación</th>
+                    <td>Serie</td>
+                    <td>Fecha Vencimiento</td>
+                    <td>Cantidad</td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+

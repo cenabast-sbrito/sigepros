@@ -1,0 +1,116 @@
+﻿@Html.Partial("_Header")
+@RenderBody()
+<header>
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Inventario</a>
+            </div>
+
+            <!--MENU-->
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav menu-principal">
+                    <li>
+                        <a href="#ingreso-resultados" aria-controls="ingreso-resultados" role="tab" data-toggle="tab">Ingreso de Resultados y MV</a>
+                    </li>
+                    <li>
+                        <a href="#reportes" aria-controls="reportes" role="tab" data-toggle="tab">Reportabilidad</a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">(_unidadgestoraLayout) Bienvenido: <strong id="Username" style="margin:3px">@Session["Nombre"]</strong> <span class="fas fa-user" aria-hidden="true" style="margin:2px"></span> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <!--<li><a id="PerfilUser" href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>-->
+                            <li><a id="logout" href="#">Cerrar Sesión<span class="fas fa-power-off" aria-hidden="true"></span></a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+    <!--CONTENIDO-->
+    <div class="container-fluid margin-top">
+        <div class="col-md-12">
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" id="ingreso-resultados">
+                    Html.Partial("Admin/_IngresoResultados")
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="reportes">
+                    @Html.Partial("Admin/_Reportes")
+                </div>
+
+            </div>
+            <!--FIN CONTENIDO-->
+            <!-- Modal Mensaje -->
+            <div id="modalMensajeSistema" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title text-center">Atencion: </h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-warning" role="alert">
+                                    <strong>Atencion!</strong><p id="mensajeSistema"></p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Aceptar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin side bar-->
+    </div>
+
+    <!-- Modal Sesión Expiró -->
+    <div class="modal fade" id="SesionExpiroNotif" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><b>Control de Sesión</b></h5>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="row col-md-12" style="font-size:1.2em;">
+                        <span>Su sesión está por expirar. Haga clic en el botón si desea mantener activa la sesión actual.</span>
+                    </div>
+
+                    <div class="row col-md-12" style="padding:15px 0">
+                        <b><span id="tiemporestante" class="label label-warning" style="font-size:1.8em;"></span></b>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="modal-footer text-center">
+                    <button id="btnMantenerSesion" type="button" class="btn btn-principal" data-dismiss="modal">Mantener sesión activa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin Modal Sesión Expiró -->
+
+</main>
+
+@Scripts.Render("~/core-js")
+@Scripts.Render("~/plugins-js")
+
+<script type="text/javascript" src="@Url.Content("~/app" + "?v=" + File.GetLastWriteTime(HttpContext.Current.Request.MapPath("~/Scripts/js/app/app.js")).ToString("yyyyMMddHHHmm"))"></script>
+<script type="text/javascript" src="@Url.Content("~/reporte" + "?v=" + File.GetLastWriteTime(HttpContext.Current.Request.MapPath("~/Scripts/js/app/reporte.js")).ToString("yyyyMMddHHHmm"))"></script>
+
+@Html.Partial("_Footer")
+

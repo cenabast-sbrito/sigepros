@@ -1,0 +1,263 @@
+﻿@Html.Partial("_Header")
+@RenderBody()
+<header>
+
+
+
+    <style>
+        .autocomplete {
+            /*the container must be positioned relative:*/
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            /*position the autocomplete items to be the same width as the container:*/
+            top: 100%;
+            left: 0;
+            right: 0;
+        }
+
+            .autocomplete-items div {
+                padding: 10px;
+                cursor: pointer;
+                background-color: #fff;
+                border-bottom: 1px solid #d4d4d4;
+            }
+
+                .autocomplete-items div:hover {
+                    /*when hovering an item:*/
+                    background-color: #e9e9e9;
+                }
+
+        .autocomplete-active {
+            /*when navigating through the items using the arrow keys:*/
+            background-color: DodgerBlue !important;
+            color: #ffffff;
+        }
+    </style>
+
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">PNACPACAM</a>
+            </div>
+
+            <!--MENU-->
+            <div class="navbar-collapse collapse">
+
+                <ul class="nav navbar-nav menu-principal">
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">Archivo<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>
+                                <a id="href_documentos" href="#ingresa-documentos" aria-controls="usuarios" role="tab" data-toggle="tab">Documentos</a>
+                            </li>
+                            <li>
+                                <a id="href_movimientos" href="#ingresa-movimientos" aria-controls="usuarios" role="tab" data-toggle="tab">.......</a>
+                            </li>
+                            <li>
+                                <a id="href_venta" href="#venta" aria-controls="usuarios" role="tab" data-toggle="tab">.........</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">Inventario<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>
+                                <a href="#lista-inventarios" aria-controls="lista-inventarios" role="tab" data-toggle="tab">.......</a>
+                            </li>
+                            <li>
+                                <a href="#admin-lista-inventarios" aria-controls="admin-lista-inventarios" role="tab" data-toggle="tab">...........</a>
+                            </li>
+                            <li>
+                                <a href="#reportes" aria-controls="reportes" role="tab" data-toggle="tab">Reportabilidad</a>
+                            </li>
+                            <li>
+                                <a href="#carga-Inventario" aria-controls="Subida de Inventarios" role="tab" data-toggle="tab">.....</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">......<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>
+                                <a href="#cierre" aria-controls="Cierre" role="tab" data-toggle="tab">........</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">.......<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+
+                            <li>
+                                <a href="#producto" aria-controls="Productos" role="tab" data-toggle="tab">......</a>
+                            </li>
+
+                            <li>
+                                <a href="#compra" aria-controls="Compra" role="tab" data-toggle="tab">......</a>
+                            </li>
+
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">Preferencias<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+
+                            <li>
+                                <a href="#ingresa-configuraciones" aria-controls="Configura" role="tab" data-toggle="tab">........</a>
+                            </li>
+
+                        </ul>
+                    </li>
+
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">....... <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>
+                                <a href="#usuarios" aria-controls="usuarios" role="tab" data-toggle="tab">......</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Bienvenido: <strong id="Username" style="margin:3px">@Session["Nombre"]</strong> <span class="fas fa-user" aria-hidden="true" style="margin:2px"></span> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a id="logout" href="#">Cerrar Sesión <span class="fas fa-power-off" aria-hidden="true"></span></a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div id="admin-bienvenida">
+        @Html.Partial("Admin/_Bienvenida")
+    </div>
+    <!--CONTENIDO-->
+    <div class="container-fluid margin-top">
+        <div class="col-md-12">
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" id="ingresa-documentos">
+                    @Html.Partial("Admin/_DocumentosProveedor")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="ingresa-movimientos">
+                    Html.Partial("Admin/_IngresaMovimiento")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="lista-inventarios">
+                    Html.Partial("Admin/_Inventario")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="admin-lista-inventarios">
+                    Html.Partial("Admin/_ListaInventarios")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="reportes">
+                    Html.Partial("Admin/_Reportes")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="carga-Inventario">
+                    Html.Partial("Admin/_CargaInventario")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="usuarios">
+                    Html.Partial("Admin/_Usuarios")
+                    <!--Html.Partial("Admin/_Funcionarios")-->
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="cierre-mensual">
+                    Html.Partial("Admin/_CierreInventario")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="cierre">
+                    Html.Partial("Admin/_Cierre")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="compra">
+                    Html.Partial("Admin/_Compra")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="venta">
+                    Html.Partial("Admin/_Venta")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="ingresa-configuraciones">
+                    Html.Partial("Admin/_MaestroReferencias")
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="producto">
+                    Html.Partial("Admin/_Producto")
+                </div>
+            </div>
+            <!--FIN CONTENIDO-->
+            <!-- Modal Mensaje -->
+            <div id="modalMensajeSistema" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title text-center">Atención: </h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-warning" role="alert">
+                                    <strong>Atención!</strong><p id="mensajeSistema"></p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Aceptar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin side bar-->
+    </div>
+
+    <!-- Modal Sesión Expiró -->
+    <div class="modal fade" id="SesionExpiroNotif" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><b>Control de Sesión</b></h5>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="row col-md-12" style="font-size:1.2em;">
+                        <span>Su sesión está por expirar. Haga clic en el botón si desea mantener activa la sesión actual.</span>
+                    </div>
+                    <div class="row col-md-12" style="padding:15px 0">
+                        <b><span id="tiemporestante" class="label label-warning" style="font-size:1.8em;"></span></b>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="modal-footer text-center">
+                    <button id="btnMantenerSesion" type="button" class="btn btn-principal" data-dismiss="modal">Mantener sesión activa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin Modal Sesión Expiró -->
+
+</main>
+
+@Scripts.Render("~/core-js")
+@Scripts.Render("~/plugins-js")
+
+<script type="text/javascript" src="@Url.Content("~/app" + "?v=" + File.GetLastWriteTime(HttpContext.Current.Request.MapPath("~/Scripts/js/app/app.js")).ToString("yyyyMMddHHHmm"))"></script>
+<script type="text/javascript" src="@Url.Content("~/administraFormularios" + "?v=" + File.GetLastWriteTime(HttpContext.Current.Request.MapPath("~/Scripts/js/app/administraFormularios.js")).ToString("yyyyMMddHHHmm"))"></script>
+
+@Html.Partial("_Footer")
+
+
+

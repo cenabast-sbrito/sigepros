@@ -1,0 +1,151 @@
+﻿@Html.AntiForgeryToken()
+
+<form id="formIngresaMovimiento">
+
+    <header>
+
+        <div class="navbar-fixed-top" style="top:50px;z-index:10">
+
+            <div class="form-group row" style="background-color: #c8d7ed;">
+                <div class="col-sm-3">
+
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav menu-principal">
+                            <li class="dropdown">
+
+
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">Acciones<span class="caret"></span></a>
+
+                                <ul class="dropdown-menu" role="menu">
+
+                                    <li style="padding-bottom: 7px;">
+                                        <button type="button" class="btn btn-principal toolbar-opciones" id="btn-crear-movimiento"><span class='fas fa-save'></span> Confirmar Documento </button>
+                                    </li>
+
+                                    <li style="padding-bottom: 7px;">
+                                        <button type="button" class="btn btn-principal toolbar-opciones" id="btn-limpiar-movimiento"><span class='fas fa-eraser'></span> Limpiar</button>
+                                    </li>
+
+                                </ul>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+    @{
+        //string format = "dd/MM/yyyy HH:mm:ss";
+        //string formatsmall = "dd/MM/yyyy";
+        string formatoFecha = "yyyy-MM-dd";
+        string formatoHora = "HH:mm:ss";
+        var fechaActual = DateTime.Now.ToString(formatoFecha);
+        var horaActual = DateTime.Now.ToString(formatoHora);
+    }
+
+    <div class="panel panel-primary ">
+        <div class="panel-heading">
+            <strong>Cabecera del Movimiento</strong>
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered">
+                <tr>
+                    <td class="Formulario-TD-Titulo">Fecha Creación</td>
+                    <td colspan="3" class="Formulario-Campo-Alineado-Medio"><input id="FechaMovimiento" name="FechaMovimiento" type="date" class="form-control" placeholder="Fecha Movimiento" required aria-required="true" value="@fechaActual"></td>
+                </tr>
+                <tr>
+                    <td class="Formulario-TD-Titulo">Producto</td>
+                    <td class="Formulario-TD-Input-small">
+                        <input id="codigoProducto_movimiento" name="codigoProducto_movimiento" type="text" class="form-control Formulario-Campo-Destacado" placeholder="Número de Documento" required aria-required="true" style="width: auto;" disabled>
+                    </td>
+                    <td class="Formulario-TD-Input-large" style="text-align: inherit;">
+                        <select id="sel_Producto_movimiento" name="sel_Producto_movimiento" class="form-control select2" required></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Formulario-TD-Titulo">Serie</td>
+                    <td class="Formulario-TD-Input-small">
+                    </td>
+                    <td class="Formulario-TD-Input-large" style="text-align: inherit;">
+                        <select id="sel_Serie_movimiento" name="sel_Serie_movimiento" class="form-control select2" required></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Formulario-TD-Titulo">Bodega Origen</td>
+                    <td class="Formulario-TD-Input-small">
+                    </td>
+                    <td class="Formulario-TD-Input-large" style="text-align: inherit;">
+                        <select id="sel_Bodega_Origen" name="sel_Bodega_Origen" class="form-control select2" required></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Formulario-TD-Titulo">Bodega Destino</td>
+                    <td class="Formulario-TD-Input-small">
+                    </td>
+                    <td class="Formulario-TD-Input-large" style="text-align: inherit;">
+                        <select id="sel_Bodega_Destino" name="sel_Bodega_Destino" class="form-control select2" required></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Formulario-TD-Titulo">Cantidad</td>
+                    <td class="Formulario-TD-Input-small">
+                    </td>
+                    <td class="Formulario-TD-Input-large" style="text-align: inherit;">
+                        <input id="mov-cantidad" name="mov-cantidad" type="text" class="form-control" placeholder="Cantidad" required aria-required="true">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Formulario-TD-Titulo">Observación</td>
+                    <td class="Formulario-TD-Input-small">
+                    </td>
+                    <td class="Formulario-TD-Input-large" style="text-align: inherit;">
+                        <input id="observacion" name="observacion" type="text" class="form-control" placeholder="Observación" required aria-required="true">
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+
+    <div>
+        <!-- <form id="formIngresaFactura"> -->
+        <br />
+        <p class="Seccion-Titulo">Listado de Movimientos</p>
+
+        <div class="tablas">
+            <table id="tablaMovimientos" class="table table-hover table-bordered table-striped table-border-blue" width="100%">
+                <thead class="table-blue">
+                    <tr>
+
+                        <th>codigoProducto  </th>
+                        <th>serie           </th>
+                        <th>fechaMovimiento </th>
+                        <th>BodegaOrigen    </th>
+                        <th>BodegaDestino   </th>
+                        <th>cantidad        </th>
+                        <th>observacion     </th>
+                        <th>rutResponsable  </th>
+                        <th>fechaCreacion   </th>
+                        <th>acciones</th>
+
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+    <!-- </form> -->
+
+
+</form>
+
+
+
+
+

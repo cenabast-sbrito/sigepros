@@ -1,0 +1,161 @@
+﻿<div class="row panel-titulo">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <h3>Compras</h3>
+    </div>
+</div>
+
+
+<div class="tablas">
+
+    @Html.AntiForgeryToken()
+
+    <table id="tablaCompra" class="table table-hover table-bordered table-striped table-border-blue" width="100%">
+        <thead class="table-blue">
+            <tr>
+                <th>Id Compra</th>
+                <th>Fecha Factura</th>
+                <th>Fecha Ingreso</th>
+                <th>Guía</th>
+                <th>Codigo Producto</th>
+                <th>Denominacion</th>
+                <th>Id Unidad Venta</th>
+                <th>Unidad Venta</th>
+                <th>Cantidad Venta / Compra</th>
+                <th>Costo Cenabast / Precio Compra Neto</th>
+                <th>Costo Bienestar / Precio Compra Bruto</th>
+                <th>Precio Promedio Ponderado</th>
+
+                <th>Total Factura</th>
+
+                <th>Rut Proveedor</th>
+                <th>Rut Responsable</th>
+
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+
+
+
+<div class="modal-body">
+
+    <div>
+
+        <div class="row panel-titulo">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <h3>COMPRA</h3>
+            </div>
+        </div>
+
+    </div>
+    <br />
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- Modal CREAR INVENTARIO -->
+<div class="modal fade" id="modal-lista-Compras" role="dialog" tabindex="-1" aria-labelledby="" data-backdrop="static" style="overflow:auto">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetFormInventarioCrear();">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="modal-crear-inventario-titulo">Crear Inventario</h4>
+            </div>
+            <form id="formCompra">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-body">
+
+                    <div id="MainMenu" class="panel-group" role="tablist" aria-multiselectable="true">
+                        <div class="list-group panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="#demo3" data-toggle="collapse" data-parent="#MainMenu" class="collapsed" aria-expanded="false"><center>Configuraciones</center></a>
+                                </h4>
+                            </div>
+                            <div class="collapse" id="demo3" aria-expanded="false">
+                                <a href="#basica" aria-controls="#basica" class="list-group-item">»Conf. Básica</a>
+                            </div>
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="#demo4" data-toggle="collapse" data-parent="#MainMenu" class="" aria-expanded="true"><center>Contabilidad</center></a>
+                                </h4>
+                            </div>
+                            <div class="collapse in" id="demo4" aria-expanded="true" style="">
+                                <a href="#compra" aria-controls="compra" class="list-group-item">»Compra</a>
+                                <a href="#venta" aria-controls="venta" class="list-group-item" data-parent="#venta">»Entrega</a>
+                                <a href="#devolucion" aria-controls="devolucion" class="list-group-item">»Devolución</a>
+                                <a href="#anulacion" aria-controls="anulacion" class="list-group-item">»Anulación</a>
+                            </div>
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="#demo5" data-toggle="collapse" data-parent="#MainMenu" class="collapsed" aria-expanded="false"><center>Maestros</center></a>
+                                </h4>
+                            </div>
+                            <div class="collapse" id="demo5" aria-expanded="false">
+                                <a href="#producto" aria-controls="producto" class="list-group-item">»Productos</a>
+                                <a href="#usuario" aria-controls="usuario" class="list-group-item">»Usuarios</a>
+                                <a href="#proveedor" aria-controls="proveedor" class="list-group-item">»Proveedores</a>
+                            </div>
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="#reportes" data-toggle="collapse" data-parent="#MainMenu" class="collapsed" aria-expanded="false"><center>Reportes</center></a>
+                                </h4>
+                            </div>
+                            <div class="collapse" id="reportes" aria-expanded="false">
+                                <a href="#reporte-ventas" class="list-group-item" data-toggle="collapse" data-parent="#reporte-ventas">Entregas<span class="caret"></span></a>
+                                <div class="collapse list-group-submenu" id="reporte-ventas">
+                                    <a href="#reportesVentas" aria-controls="reportesVentas" class="list-group-item" data-parent="#reporte-ventas">»Entregas por Cliente</a>
+                                    <a href="#reportesVentasPrecioPromedio" class="list-group-item" data-parent="#reporte-ventas">»Entregas a Precio Promedio</a>
+                                </div>
+                                <a href="#reporte-compras" class="list-group-item" data-toggle="collapse" data-parent="#reporte-compras">Compras<span class="caret"></span></a>
+                                <div class="collapse list-group-submenu" id="reporte-compras">
+                                    <a href="#reportesCompras" aria-controls="reportesCompras" class="list-group-item" data-parent="#reporte-compras">»Compras a Precio Promedio</a>
+                                </div>
+                                <a href="#reporte-devolucion" class="list-group-item" data-toggle="collapse" data-parent="#reporte-devolucion">Devoluciones<span class="caret"></span></a>
+                                <div class="collapse list-group-submenu" id="reporte-devolucion">
+                                    <a href="#reportesDevolucion" aria-controls="reportesDevolucion" class="list-group-item" data-parent="#reporte-devolucion">»Devoluciones</a>
+                                </div>
+                                <a href="#cierreMensual" data-toggle="collapse" data-parent="#cierreMensual" class="list-group-item">Cierre Mensual<span class="caret"></span></a>
+                                <div class="collapse list-group-submenu" id="cierreMensual">
+                                    <a href="#generarCierreMes" aria-controls="reportesDevolucion" class="list-group-item" data-parent="#cierreMensual">»Generar Cierre del Mes</a>
+                                    <a href="#historialCierreMes" aria-controls="reportesDevolucion" class="list-group-item" data-parent="#cierreMensual">»Historial de Cierres</a>
+                                </div>
+                                <a href="#reportesProductosVencidos" class="list-group-item">»Productos</a>
+                                <a href="#reportesDiferencias" class="list-group-item">»Diferencias</a>
+                                <a href="#reportesDesicionStock" class="list-group-item">»Desición</a>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-sm btn-principal" id="btn-crear-inventario-compra">Crear</button>
+                    <button type="button" class="btn btn-sm btn-secundario" data-dismiss="modal" onclick="resetFormInventarioCrear();">Salir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

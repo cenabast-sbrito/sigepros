@@ -1,0 +1,74 @@
+﻿.tablas {
+    background-color: #e3e3e3;
+    padding: 10px;
+}
+.Formulario-Tabla {
+    background-color: inherit;
+}
+.Formulario-TR {
+    border: hidden;
+}
+.Seccion-Titulo {
+    font-family: sans-serif;
+    font-size: large;
+}
+.Formulario-TD-Titulo {
+    vertical-align: middle !important;
+    text-align: left !Important;
+    font-size: medium;
+    background-color: #337ab7;
+    color: white;
+    font-family: sans-serif;
+}
+.Formulario-TD-Label {
+    width: 10%;
+    vertical-align: middle !important;
+    text-align: left !Important;
+    font-size: large;
+}
+.Formulario-TD-Label2 {
+    vertical-align: middle !important;
+    text-align: left !Important;
+    font-size: large;
+}
+.Formulario-TD-Label2_xsmall {
+    width: 10%;
+    vertical-align: middle !important;
+    text-align: left !Important;
+    font-size: large;
+}
+.Formulario-TD-Input-little {
+    width: 5%;
+    vertical-align: middle;
+}
+.Formulario-TD-Input-xsmall{
+    width: 10%;
+    vertical-align: middle;
+}
+.Formulario-TD-Input-small {
+    width: 20%;
+    vertical-align: middle;
+}
+.Formulario-TD-Input-large {
+    width: 70%;
+    vertical-align: middle;
+}
+.Formulario-TD-Input-medium {
+    width: 30%;
+    vertical-align: middle;
+}
+.Formulario-Campo-Destacado {
+    width: auto;
+    font-weight: bold;
+    background-color: beige;
+}
+.Formulario-Campo-Alineado-Medio {
+    vertical-align: middle !important;
+    text-align: left !Important;
+    font-size: large;
+}
+.toolbar-opciones {
+    width: 100%; 
+    border-radius: 0; 
+    text-align: left; 
+}

@@ -1,0 +1,161 @@
+USE [AA_FARMACIA]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_cierreMensual]    Script Date: 24-01-2023 15:18:44 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<SERGIO BRITO>
+-- Create date: <24-01-2023>
+-- Description:	<Previsualizar cierre mensual>
+-- =============================================
+ALTER PROCEDURE [dbo].[sp_cierreMensual]
+	@mesact varchar(2),   -- MM
+	@anoact varchar(4),   -- YYYY
+	@mesant varchar(2),
+	@anoant varchar(4)
+AS
+BEGIN
+
+DECLARE PRODUCTOS CURSOR FOR 
+    SELECT codigo, denominacion, precioUnitario FROM dbo.producto WHERE estado = 1
+
+	DECLARE @codigo varchar(50);
+	DECLARE @denominacion varchar(max);
+
+	DECLARE @SaldoInicial DECIMAL(20,6);
+	DECLARE @SaldoSerieProducto DECIMAL(20,6);
+	DECLARE @PrecioUnitario DECIMAL(20,6);
+	DECLARE @PrecioCompra DECIMAL(20,6);
+	DECLARE @SaldoInicialPeso DECIMAL(20,6);
+	DECLARE @CantCompra DECIMAL(20,6);
+	DECLARE @CantEntrega DECIMAL(20,6);
+	DECLARE @CostoActual DECIMAL(20,6);
+
+	DECLARE @SaldoActual DECIMAL(20,6);
+
+	DECLARE @SaldoPeso DECIMAL(20,6);
+
+	DECLARE @cierreMensual DECIMAL(20,6);
+	DECLARE @venta DECIMAL(20,6);
+	DECLARE @ventaProducto DECIMAL(20,6);
+
+	DECLARE @mes VARCHAR(2);
+	DECLARE @anio VARCHAR(4);
+	DECLARE @anioant VARCHAR(4);
+	DECLARE @fechaCierre DATE;
+
+	select @mes = @mesact;
+	select @mesant= @mesant;
+	select @anio = @anoact;
+	select @anioant = @anoant;
+
+	select @fechaCierre = CONVERT(date,concat('01-',@mes,'-',@anio),103)
+	select @fechaCierre = EOMONTH (@fechaCierre) /* obtener el ultimo dia del mes de cierre */
+
+	DECLARE @myTable as TABLE
+	(
+		codigo varchar(50), 
+		denominacion varchar(max),
+		SaldoInicial  decimal(20,6), 
+		SaldoActual   decimal(20,6),
+/*		SaldoSerieProducto  decimal(20,6),*/
+		PrecioUnitario  decimal(20,6), 
+		CantCompra  decimal(20,6), 
+		SaldoPeso decimal(20,6),
+		PrecioCompra  decimal(20,6), 
+		CantEntrega  decimal(20,6), 
+		CostoActual  decimal(20,6)
+	)
+
+	OPEN PRODUCTOS FETCH NEXT FROM PRODUCTOS INTO @codigo, @denominacion, @PrecioUnitario
+
+		WHILE @@FETCH_STATUS = 0  
+		BEGIN  
+
+			select @SaldoInicial = saldo from cierreMensual_producto cmp inner join cierreMensual cm on cm.id_cierreMensual = cmp.id_cierreMensual where DATEPART(month, fecha) = @mesant and DATEPART(year, fecha) = @anioant and cmp.codigo = @codigo and cmp.estado = 1
+ 
+			select @cierremensual = @SaldoInicial
+
+			select @venta          = SUM(cantidadVenta) from compra where DATEPART(month, fechaIngreso) = @mes and DATEPART(year, fechaIngreso) = @anio and codigoProducto= @codigo 
+ 
+			select @ventaProducto = SUM(vp.cantidad)    from venta v inner join venta_producto vp on v.folio = vp.folio where DATEPART(month, v.fecha) = @mes and DATEPART(year, v.fecha) = @anio and v.estado = 1 and vp.codProducto = @codigo 
+ 
+			SET @SaldoActual = ISNULL(@cierreMensual,0) + ISNULL(@venta,0) - ISNULL(@ventaProducto,0) 
+ 
+			-- cierreMensual_producto.saldo + compra.cantidadVenta - venta_producto.cantidad  + Mermas.cantidad
+
+			--select @PrecioUnitario=AVG(precioUnitario) FROM producto WHERE codigo = @codigo
+                
+			select @CantCompra = @venta
+
+			select @PrecioCompra = costoBienestar from compra where DATEPART(month, fechaIngreso) = @mes and DATEPART(year, fechaIngreso) = @anio and id_compra = (select MAX(id_compra) from compra where codigoProducto = @codigo)
+
+			select @CantEntrega = @ventaProducto 
+
+			select @CostoActual = SUM(vp.cantidad * vp.precioCosto) from venta v inner join venta_producto vp on v.folio = vp.folio where DATEPART(month, v.fecha) = @mes and DATEPART(year, v.fecha) = @anio and v.estado = 1 and codProducto = @codigo
+	
+			select top 1 @PrecioUnitario = precioPromedioPonderado FROM compra where codigoProducto = @codigo and fecha < @fechaCierre order by fecha desc
+
+			select @SaldoSerieProducto = sum(cantidadComprada) from Serie_producto where codigoProducto=@codigo
+
+			select @SaldoPeso = @PrecioUnitario * @SaldoActual
+
+				    INSERT INTO @myTable(
+											codigo,
+											denominacion,
+											SaldoInicial,
+											SaldoActual,
+/*											SaldoSerieProducto,*/
+											PrecioUnitario,
+											SaldoPeso,
+											CantCompra,
+											PrecioCompra,
+											CantEntrega,
+											CostoActual
+										) 
+										VALUES 
+										(
+											 @codigo,
+											 @denominacion,
+											 @SaldoInicial,
+											 @SaldoActual,
+/*											 @SaldoSerieProducto,*/
+											 @PrecioUnitario,
+											 @SaldoPeso,
+											 @CantCompra,
+											 @PrecioCompra,
+											 @CantEntrega,
+											 @CostoActual
+										 )
+
+			FETCH NEXT FROM PRODUCTOS   
+			INTO @codigo, @denominacion, @PrecioUnitario
+
+		END
+		CLOSE PRODUCTOS;  
+		DEALLOCATE PRODUCTOS;  
+
+
+
+		SELECT  
+				codigo,
+				denominacion,
+				isnull(SaldoInicial,0) SaldoInicial,
+				isnull(SaldoActual,0) SaldoActual,
+				isnull(PrecioUnitario,0) PrecioUnitario, 
+				isnull(SaldoPeso,0) SaldoPeso,
+				isnull(CantCompra,0) CantCompra,
+				isnull(PrecioCompra,0) PrecioCompra,
+				isnull(CantEntrega,0) CantEntrega,
+				isnull(CostoActual,0) CostoActual
+		
+		FROM @myTable 
+		return
+
+
+
+
+
+END

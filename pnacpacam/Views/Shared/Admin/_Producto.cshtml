@@ -1,0 +1,85 @@
+﻿<div class="row panel-titulo">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <h3>Productos</h3>
+    </div>
+</div>
+
+<div class="tablas">
+
+    @Html.AntiForgeryToken()
+
+    <table id="tablaProductos" class="table table-hover table-bordered table-striped table-border-blue" width="100%">
+        <thead class="table-blue">
+            <tr>
+
+                <th>id_producto</th>
+                <th>codigo</th>
+                <th>serie</th>
+                <th>denominacion</th>
+                <th>id_unidadVenta</th>
+                <th>saldo</th>
+                <th>precioUnitario</th>
+                <th>estado</th>
+                <th>stockCritico</th>
+                <th>acciones</th>
+
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+</div>
+
+<!-- Modal VER PRODUCTO -->
+<div class="modal fade" id="modal-ver-Producto" role="dialog" tabindex="-1" aria-labelledby="" data-backdrop="static" style="overflow:auto">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetFormProductoVer();">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="modal-editar-producto-titulo">Producto</h4>
+            </div>
+            <form id="formVerProducto">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        
+                        <table class="table table-bordered">
+                            <tr><td class="bg-primary Formulario-TD-Label2">&nbsp;Identificador único&nbsp;</td><td><input id="ver_id_producto" class="form-control" style="background-color:white;" type="text" disabled /></td></tr>
+                            <tr><td class="bg-primary Formulario-TD-Label2">&nbsp;Código de Producto &nbsp;</td><td><input id="ver_codigo" class="form-control" style="background-color:white;" type="text" disabled /></td></tr>
+                            <tr><td class="bg-primary Formulario-TD-Label2">&nbsp;Denominación       &nbsp;</td><td><input id="ver_denominacion" class="form-control" style="background-color:white;" type="text" disabled /></td></tr>
+                            <tr><td class="bg-primary Formulario-TD-Label2">&nbsp;Código Unidad Venta&nbsp;</td><td><input id="ver_id_unidadVenta" class="form-control" style="background-color:white;" type="text" disabled /></td></tr>
+                            <tr><td class="bg-primary Formulario-TD-Label2">&nbsp;Saldo              &nbsp;</td><td><input id="ver_saldo" class="form-control" style="background-color:white;" type="text" disabled /></td></tr>
+                            <tr><td class="bg-primary Formulario-TD-Label2">&nbsp;Precio Unitario    &nbsp;</td><td><input id="ver_precioUnitario" class="form-control" style="background-color:white;" type="text" disabled /></td></tr>
+                            <tr><td class="bg-primary Formulario-TD-Label2">&nbsp;Estado             &nbsp;</td><td><input id="ver_estado" class="form-control" style="background-color:white;" type="text" disabled /></td></tr>
+                            <tr><td class="bg-primary Formulario-TD-Label2">&nbsp;Stock Crítico      &nbsp;</td><td><input id="ver_stockCritico" class="form-control" style="background-color:white;" type="text" disabled /></td></tr>
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secundario" data-dismiss="modal" onclick="resetFormProductoVer();">Salir</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
