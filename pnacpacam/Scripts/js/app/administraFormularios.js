@@ -1,54 +1,61 @@
-﻿/* ADMINISTRACION DEL MENU */
+﻿/*
+$(document).on('click', '#href_facturacion', function () {
 
-//$(document).ready(function () {
-//    createPdf();
-//}
-//);
-
-$(document).on('click', '#href_documentos', function () {
-
-    getProveedores();
+    _getFacturas();
 
 });
+*/
 
-$(document).on('change', '#nombreProveedor', function () {
+$(document).on('click', '#href_usuarios', function () {
 
-    if ($(this).val() != "") {
-        document.getElementById('rutProveedor').value = $(this).val();
-        resetTablaDespachos();
-        getDespachos($(this).val());
-    }
+    getTableroUsuario();
 
-});
+}); 
 
-function resetTablaDespachos() {
 
-    var table = $('#tablaDespachos').DataTable({
+$(document).on('click', '#href_proveedores', function () {
+
+    getTableroProveedores();
+
+}); 
+
+
+function reset(tabla) {
+
+    var table = $('#' + table).DataTable({
         paging: true,
         destroy: true,
         responsive: true
     });
     table.clear().destroy();
 
-}
+} 
 
-function getProveedores() {
+
+
+function descarga(rut, ndoc) {
     try {
         $.ajax({
             type: "GET",
-            url: "../Proveedor/getProveedores",
-            success: function (res) {
-                let option = "<option value=''>Seleccione un Proveedor</option>";
-                for (var element of res) {
-                    option = option +
-                        '<option value="' + element.rut + '">' +
-                        element.nombre +
-                        '</option>';
-                }
-                $('#nombreProveedor').html(option);
+            data: {
+                rutProveedor: rut,
+                factura: ndoc
             },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error("Ha ocurrido un error : " + jqXHR.responseText);
+            url: apiUrl("Proveedor/descarga"),
+            success: function (res) {
+
+                $('#mensajeSistema').text('Expediente Construido');
+                $('#modalMensajeSistema').modal('show');
+
+            },
+            error: function (xhr) {
+                if (xhr.status === 404) { // 404: No se encuentra el recurso
+                    $(".loader_Tablas").fadeOut("slow");
+                    alert('Tu sesión ha expirado.');
+                    window.location.href = apiUrl(""); // obtenerRuta("");
+                } else {
+                    avisoFinProceso("Ocurrio algún error");
+                }
             }
         });
     } catch (ex) {
@@ -56,56 +63,60 @@ function getProveedores() {
     }
 }
 
-function getDespachos(rut) {
+
+
+
+/* NOTIFICACIONES */
+
+function getNotificaciones() {
+
+    var table = $('#tablaNotificaciones').DataTable();
+    rut = sessionStorage.getItem("_pnacpacam_Rut");
+
+    reset('tablaNotificaciones');
+/*    var groupColumn = 1;
+    var nGroupColumn = 6;
+    */
+    var nrows = 5;
     var json = {
-        rutProveedor : rut
+        rutProveedor: rut
     }
     try {
-        $('#tablaDespachos').DataTable({
+        $('#tablaNotificaciones').DataTable({
             ajax: {
-                url: "../Proveedor/getDespachos",
+                url: apiUrl("Proveedor/getNotificaciones"),
                 data: json,
                 dataType: "json",
                 "dataSrc": function (json) {
-                    if (json.length > 0) {
-                        return json;
+                    return json.state ? json.resultado : [];
+                },
+                error: function (xhr) {//return json.state ? json.resultado : [];
+                    if (xhr.status === 404) { // 404: No se encuentra el recurso
+                        $(".loader_Tablas").fadeOut("slow");
+                        alert('Tu sesión ha expirado.');
+                        window.location.href = apiUrl("");// obtenerRuta("");
                     } else {
-                        return [];
+                        avisoFinProceso("Ocurrio algún error");
                     }
                 }
             },
             columns: [
-                { "data": "LIFNR" },
-                { "data": "NFactura" },
-                { "data": "DocumentoVenta" },
-                { "data": "PedidoCompra" },
-                { "data": "GrupoArticulos" },
-                { "data": "Canal" },
-                { "data": "GuiaDespacho" },
-                { "data": "CodigoMaterial" },
-                { "data": "Lote" },
-                { "data": "CantidadDocumento" },
-                { "data": "CantidadInformada" },
-                { "data": "ValorNeto" },
-                { "data": "Observaciones", visible: false },
-                { "data": "DocumentoEntrega", visible: false },
-                { "data": "FechaVencimiento" },
-                { "data": "MotivoRechazo" },
                 {
                     "render": function (data, type, full, meta) {
 
-                        var url = "https://testaplicacionesweb.cenabast.cl:7001/archivoscedibles/" + parseInt(full.LIFNR) + "/procesados/" + full.DocumentoVenta + ".pdf"
-                        //var ob = "<object id='pdfHolder' data='"+url+"' type='application/pdf' width='300' height='200'></object>"
+                        if (full.BLeido)
+                            return "<i class='far fa-square' style='font-size:22px'></i>";
+                        else return "<i class='fas fa-check-square' style='font-size:22px'></i>";
 
-                        var cuadroPreview = "<a target='_documentoPreview' href='" + url + "'><i class='fas fa-eye' style='font-size:28px'></i></a>"
-
-                        strBotones = cuadroPreview;
-
-                        return strBotones;
-
-                    }
-                }
+                    }, width: "1"
+                }, 
+                { "data": "RutUsuario", width: "5", visible: false },
+                { "data": "RutProveedor", width: "5"  },
+                { "data": "NFactura", width: "5" },
+                { "data": "FNotificacion", className: "notificacionFecha" },
+                { "data": "TMensaje", className: "notificacionMensaje"  }
             ],
+            displayLength: nrows, /* numero de filas que despliega inicialmente la tabla */
             language: {
                 "lengthMenu": "Mostrar _MENU_ registros por página",
                 "zeroRecords": "No hay registros disponibles",
@@ -122,42 +133,52 @@ function getDespachos(rut) {
             },
             responsive: true,
             destroy: true,
-            scrollX: true
+            scrollX: true,
+            success: function (res) {
+                console.log(res);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Ha ocurrido un error : " + jqXHR.responseText);
+            }
+
         });
+        /*
+        $('#tablaFacturas tbody').on('click', 'tr', function () {
+            alert('Row index: ' + table.row(this).index());
+        });
+        */
     } catch (ex) {
         console.log("Error: " + ex.message);
     }
 }
 
+/* FIN NOTIFICACIONES */
 
 
 
 
 
 
+/* ADMINISTRA NOTIFICACIONES */
+
+function initNotificaciones() {
+    rut = sessionStorage.getItem("_pnacpacam_Rut");
+    getNotificaciones(rut);
+}
 
 
 
 
+/* FIN ADMINISTRA NOTIFICACIONES */
 
 
+/* MENSAJES AL USUARIO */
 
+function mensajeSistema(aviso) {
 
+    $('#mensajeSistema').text(aviso);
+    $('#modalMensajeSistema').modal('show');
 
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* MENSAJES AL USUARIO */

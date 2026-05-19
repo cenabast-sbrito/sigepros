@@ -1,11 +1,7 @@
-﻿using Org.BouncyCastle.Asn1.Cms;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Configuration;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 
 namespace pnacpacam.Models
 {
@@ -67,7 +63,6 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
             return referencia;
@@ -111,7 +106,6 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
 
@@ -178,7 +172,6 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
 
@@ -207,7 +200,6 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
 

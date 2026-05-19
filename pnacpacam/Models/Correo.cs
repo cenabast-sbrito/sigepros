@@ -1,17 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Net;
 using System.Net.Mail;
-using System.Web;
 
 namespace pnacpacam.Models
 {
     public class Correo
     {
-        public bool enviaCorreo(string NombreConvenio, string NombreCreador, string emailDestino, string NombreDestino, string path, string motivo)
+
+        public int notificar(string rutUsuario, string rutProveedor, string factura, string estado)
+        {
+            int i = 0;
+            //string sql = @"
+            //insert into Notificaciones ( RutUsuario, RutProveedor , NFactura, FNotificacion, BLeido, TMensaje ) 
+            //values ( @rutUsuario, @rutProveedor,@factura, CONVERT(varchar,GETDATE(),126), 0 , @estado ) 
+            //";
+            SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["pnacpacam"].ConnectionString);
+            SqlCommand cmd = new SqlCommand("proc_Notificacion_Agregar @rutUsuario,@rutProveedor,@factura,@estado", con);
+            cmd.Parameters.AddWithValue("@rutUsuario", rutUsuario);
+            cmd.Parameters.AddWithValue("@rutProveedor", rutProveedor);
+            cmd.Parameters.AddWithValue("@factura", factura);
+            cmd.Parameters.AddWithValue("@estado", estado);
+            con.Open();
+            try
+            {
+                i = cmd.ExecuteNonQuery();
+            }
+            catch (Exception)
+            { i = 0; }
+            return i;
+        }
+        public bool enviaCorreo(string nFactura, string NombreCreador, string emailDestino, string NombreDestino, string path, string motivo)
         {
             MailMessage mail = new MailMessage();
             bool i = false;
@@ -20,14 +39,14 @@ namespace pnacpacam.Models
             {
 
                 string cabMensaje = "Estimad@ <strong>" + NombreDestino + "</strong>: ";
-                string materia = "<br><br>" + motivo + " correspondiente al <strong>" + NombreConvenio + " </strong>, ";
+                string materia = "<br><br>" + motivo + " correspondiente a la factura <strong>" + nFactura + " </strong>, ";
                 string detMensaje = "el cual se ha asignado a ud. por <strong>" + NombreCreador + "</strong>. ";
                 string pieMensaje = "<br><br>Para revisar mas detalles del CDC, debe acceder a la plataforma en la siguiente dirección:";
 
                 string body = "";
                 mail.From = new MailAddress("no-reply@cenabast.cl");
-                mail.To.Add(new MailAddress(emailDestino));
-                //mail.To.Add(new MailAddress("rsalazar@cenabast.cl"));
+                //mail.To.Add(new MailAddress(emailDestino));
+                mail.To.Add(new MailAddress("sbrito@cenabast.cl"));
                 mail.SubjectEncoding = System.Text.Encoding.UTF8;
                 mail.IsBodyHtml = true;
                 string subject = "Sistema de notificación - pnacpacam";
@@ -37,10 +56,9 @@ namespace pnacpacam.Models
                 body = body.Replace("@cabecera", "");
                 body = body.Replace("@cuerpo", cabMensaje + materia + detMensaje + pieMensaje);
                 body = body.Replace("@link", "http://pnacpacam.cenabast.cl");
-                //body = body.Replace("@link", "http://testInventario.cenabast.cl");
                 mail.Body = body;
 
-                SmtpClient client = new SmtpClient("10.8.0.27");
+                SmtpClient client = new SmtpClient("192.168.7.27");
                 client.Port = 25;
                 client.EnableSsl = false;
                 client.Send(mail);
@@ -84,7 +102,7 @@ namespace pnacpacam.Models
                 body = body.Replace("@link", "http://testInventario.cenabast.cl");
                 mail.Body = body;
 
-                SmtpClient client = new SmtpClient("10.8.0.27");
+                SmtpClient client = new SmtpClient("192.168.7.27");
                 client.Port = 25;
                 client.EnableSsl = false;
                 client.Send(mail);
@@ -99,6 +117,8 @@ namespace pnacpacam.Models
 
             return i;
         }
+
+
 
 
     }

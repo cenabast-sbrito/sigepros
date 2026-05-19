@@ -1,89 +1,241 @@
-﻿<div class="row panel-titulo">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <h3>Autorización de Usuarios</h3>
-    </div>
-</div>
+﻿<script>
 
-<div class="container-datatable">
+    document.addEventListener("DOMContentLoaded", () => {
+        $('#href_usuarios').on('shown.bs.tab', function () {
+            try {
+
+                _ocultarImagen();
+
+            } catch (err) {
+                console.error("Error al inicializar carga de usuarios:", err);
+            }
+        });
+    });
+
+</script>
+
+<div class="panel panel-primary">
+
     <div class="row">
-        <table class="table table-hover table-bordered table-striped table-border-blue" id="tableroUsuario" style="width:100%">
-            <thead class="thead-bgcolor">
-                <tr>
-                    <th>Id</th>
-                    <th>Rut</th>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Perfil</th>
-                    <th>Estado</th>
-                    <th>Modificar</th>
-                </tr>
-            </thead>
-        </table>
+        <div class="titulo-principal">
+            <h2>Autorización de Usuarios</h2>
+        </div>
     </div>
+
+     <table id="tableroUsuario" 
+        class="table table-hover table-bordered table-striped table-datatable-app"
+        width="100%">
+
+     <thead class="thead-app">
+         <tr>
+             <th>Rut</th>
+             <th>Nombre</th>
+             <th>Apellido</th>
+             <th>Roles</th>
+             <th>Estado</th>
+             <th>Modificar</th>
+         </tr>
+     </thead>
+     <tbody></tbody>
+
+ </table>
 </div>
 
 
-<!-- Modal Nuevo Usuarios-->
-<div class="modal fade" id="nuevoUsuario" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="">
-    <div class="modal-dialog" role="document">
+
+
+<!-- Modal: Crear un nuevo usuario -->
+
+<div class="modal fade" id="modalNuevoUsuario" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
+
+            <!-- Cabecera del Modal -->
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Usuario</h4>
+                <div class="titulo-modal">
+                    <h2 class="mb-0">Usuario</h2>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+
+            <!-- Formulario -->
             <form id="formUsuario">
+                <div class="modal-body container-fluid">
 
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
 
-                                <label for="exampleInputPassword1">Nombres :</label>
-
-                                <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Nombres" value="" required autocomplete="off">
-
-                                <input id="idUsuario" name="idUsuario" type="hidden" value="">
-                                <input id="rut" name="rut" type="hidden" value="">
-                                <div class="autocomplete">
-                                    <div id="sugerencia-nombre" class="autocomplete-items"></div>
-                                </div>
-                            </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="rut" class="label-formulario">ORGANISMO</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select id="organismo" name="organismo" class="form-control" required>
+                                <option value="CENABAST">CENABAST</option>
+                                <option value="MINSAL">MINSAL</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">Perfil :</label>
-                                <select id="perfil" name="perfil" class="form-control select2" required>
-                                    <option value="">SELECCION UN PERFIL</option>
-                                    <option value="1">ADMINISTRADOR</option>
-                                    <option value="2">CONSULTOR</option>
-                                    <option value="3">ENCARGADO FARMACIA</option>
-                                    <option value="4">SUPER USUARIO</option>
-                                </select>
-                            </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="rut" class="label-formulario">RUT</label>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">Estado :</label>
-                                <select id="usuario_estado" name="usuario_estado" class="form-control " required>
-                                    <option value="1">ACTIVO</option>
-                                    <option value="0">INACTIVO</option>
-                                </select>
-                            </div>
+                        <div class="col-md-8">
+                            <input id="rut" name="rut" type="text" class="form-control" placeholder="Sin puntos, sin guión y sin dígito verificador" required autocomplete="off">
                         </div>
                     </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="nombre" class="label-formulario">Nombres</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Nombres" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="apellido" class="label-formulario">Apellido</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="apellido" name="apellido" type="text" class="form-control" placeholder="Apellidos" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+
+                        <div class="col-md-4 form-label">
+                            <label for="usuario_estado" class="label-formulario">Estado</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select id="usuario_estado" name="usuario_estado" class="form-control" required>
+                                <option value="1">ACTIVO</option>
+                                <option value="0">INACTIVO</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group">
+
+                        <div class="col-md-4 form-label">
+                            <label for="usuario_rol" class="label-formulario">Rol</label>
+                        </div>
+
+                        <div class="col-md-8">
+
+                            <input id="usuario_rol" name="usuario_rol" type="text" class="form-control" disabled>
+
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    data-toggle="modal"
+                                    data-target="#modalRolesUsuario"
+                                    onclick="getTableroRolesUsuario($('#organismo').val(), $('#rut').val())">
+                                Asignar Roles
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-primary" style="background-color: #be0a1f !important;"
+                                    onclick="delTableroRolesUsuario($('#organismo').val())">
+                                Limpiar Roles
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="usuario_clave" class="label-formulario">Nueva Clave</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="usuario_clave" name="usuario_clave" type="text" class="form-control" placeholder="Clave" required autocomplete="off">
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- Pie del Modal -->
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-principal">Guardar</button>
-                    <button type="button" class="btn btn-secundario" data-dismiss="modal">Cerrar</button>
+
+                    <button id="guardarNuevoUsuario" type="button" class="btn btn-primary">Guardar  </button>
+                    <button id="modificarUsuario" type="button" class="btn btn-primary">Modificar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+
                 </div>
+
             </form>
+
         </div>
     </div>
 </div>
 
 
+<!-- Fin Modal: Crear un nuevo usuario -->
+<!-- Modal: Asignar rol al usuario -->
+
+<div class="modal fade" id="modalRolesUsuario" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modalRolesUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <!-- Cabecera del Modal -->
+            <div class="modal-header">
+                <div class="titulo-modal">
+                    <h2 class="mb-0">Roles Usuario</h2>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- Formulario -->
+            <form id="formRolesUsuario">
 
 
+                <div class="modal-body container-fluid">
 
+                    <div class="row form-group" style="display: inline-flex">
+                        <select id="listaRoles" name="listaRoles" class="form-control" required>
+                        </select>
+                        <button id="asignarRolUsuario" type="button" class="btn btn-primary" style="margin-left:10px;">Asignar  </button>
+                    </div>
+
+                    <div class="row form-group" style="margin-top: 25px;">
+
+                        <!-- asignar roles -->
+                        <div class="container-datatable">
+                            <div class="row">
+                                <table class="table table-hover table-bordered table-striped table-border-blue" id="tableroRolesDelUsuario" style="width:100%">
+                                    <thead class="thead-bgcolor">
+                                        <tr>
+                                            <th>Rol</th>
+                                            <th>Descripción</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                    <!-- Pie del Modal -->
+                    <div class="modal-footer">
+                        @*<button id="guardarRolUsuario" type="button" class="btn btn-primary">Guardar  </button>
+                        <button id="modificarRolUsuario" type="button" class="btn btn-primary">Modificar</button>*@
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+                    </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+</script>
+
+
+<!-- Fin Modal: Asignar rol al usuario -->

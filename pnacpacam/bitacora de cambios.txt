@@ -1,0 +1,43 @@
+﻿created: 21-10-2024 11:10:00, by: Sergio Brito 1.0.0.0.9
+[
+	{
+		version="1.0.0.1.1", autor: SBrito
+		bug or improvements ="improvements"
+		description="no recargar la tabla entera de facturas y no perder el scroll ni la página actual, permitir carga total de planilla excel",
+		solution="nuevos campos html $("#resumeCountOtraFecha") y $("#resumeCountRechazos")",
+		date implemented="11-12-2024"
+		date deployed="11-12-2024", 
+	},
+	{
+		version="1.0.0.1.0", autor: SBrito
+		bug or improvements ="improvements"
+		description="se amplia feedback de carga a mensajes: rechazo por fecha de carga y rechazo por canal no aceptado",
+		solution="nuevos campos html $("#resumeCountOtraFecha") y $("#resumeCountRechazos")",
+		date implemented="11-12-2024"
+		date deployed="11-12-2024", 
+	},
+	{
+		version="1.0.0.0.9", autor: SBrito
+		bug or improvements ="bug"
+		description="se quita join a despacho en query proveedores para ampliar en carga de datos",
+		solution="SELECT distinct LIFNR rutProveedor, NAME1 nombre, STRAS direccion FROM [PZ_SISTEMA_NUEVOMODELO].[dbo].LFA1",
+		date implemented="29-11-2024"
+		date deployed="29-11-2024", 
+	},
+	{
+		version="1.0.0.0.7", autor: SBrito 
+		bug or improvements ="bug"
+		description="query guias genera un producto cruz por no incluir condicion PARVW='WE'",
+		solution="se agrega condicion en guias and vbpa.PARVW = 'WE'",
+		date implemented="21-10-2024"
+		date deployed="NO", 
+	},
+	{
+		version="1.0.0.0._", autor: muestra 
+		bug or improvements ="bug or improvement"
+		description="...",
+		solution="...",
+		date implemented="DD-MM-YYYY"
+		date deployed="YES OR NO", 
+	},
+]

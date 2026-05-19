@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Data.SqlClient;
 
 using System.Linq;
-using System.Web;
 
 namespace pnacpacam.Models
 {
@@ -64,7 +63,6 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
             return funcionario;
@@ -72,7 +70,7 @@ namespace pnacpacam.Models
 
         public List<Funcionario> GetFuncionarioByCodigo(int Codigo)
         {
-           // se agrega una fila 'OTRO FUNCIONARIO' la cual permitira al gestopr definir un usuario que no se encuentra en la lista oficial
+            // se agrega una fila 'OTRO FUNCIONARIO' la cual permitira al gestopr definir un usuario que no se encuentra en la lista oficial
             Funcionario funcionario = null;
             List<Funcionario> funcionarios = new List<Funcionario>();
             string sql = "SELECT id_funcionario, rut, password, nombre, apellido, anexo, email, nombreUsuario, codigoDpto, codigoSubDpto, codigoUnidad, idCargo, estado FROM funcionario where codigoDpto = @Codigo or codigoSubDpto = @Codigo or codigoUnidad = @Codigo " +
@@ -91,7 +89,7 @@ namespace pnacpacam.Models
                 reader = cmd.ExecuteReader();
                 if (reader.HasRows)
                 {
-                    
+
                     while (reader.Read())
                     {
                         funcionario = new Funcionario();
@@ -103,7 +101,7 @@ namespace pnacpacam.Models
                         funcionario.Apellido = reader["apellido"].ToString();
                         funcionario.Anexo = reader["anexo"] == DBNull.Value ? 0 : int.Parse(reader["anexo"].ToString());
                         funcionario.Email = reader["email"].ToString();
-                        funcionario.NombreUsuario =  reader["nombreUsuario"] == DBNull.Value ? "NULL" : reader["nombreUsuario"].ToString();
+                        funcionario.NombreUsuario = reader["nombreUsuario"] == DBNull.Value ? "NULL" : reader["nombreUsuario"].ToString();
                         funcionario.CodigoDpto = int.Parse(reader["codigoDpto"].ToString());
                         funcionario.CodigoSubDpto = int.Parse(reader["codigoSubDpto"].ToString());
                         funcionario.CodigoUnidad = int.Parse(reader["codigoUnidad"].ToString());
@@ -119,7 +117,6 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
             return funcionarios;
@@ -130,7 +127,7 @@ namespace pnacpacam.Models
             List<string> listaEmail = new List<string>();
             List<string> aux = listaNotificacion.Distinct().ToList();
             SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["secondary"].ConnectionString);
-           
+
             var parameters = new string[aux.Count];
             SqlCommand cmd = new SqlCommand();
 
@@ -163,7 +160,6 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
 
@@ -197,7 +193,6 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
             return status;
@@ -226,7 +221,6 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
             return nombreCompleto;
@@ -254,113 +248,66 @@ namespace pnacpacam.Models
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
             return email;
         }
         public string PutFuncionario(Funcionario funcionario)
         {
-                string res = "";
-                int i = 0;
-                string sql = "INSERT INTO dbo.funcionario ( rut, password, nombre, apellido, anexo, email, nombreUsuario, codigoDpto, codigoSubDpto, codigoUnidad, idCargo, estado) VALUES ( @rut, @password, @nombre, @apellido, @anexo, @email, @nombreUsuario, @codigoDpto, @codigoSubDpto, @codigoUnidad, @idCargo, @estado )";
-
-                SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["secondary"].ConnectionString);
-                SqlCommand cmd = new SqlCommand(sql, con);
-
-                string emailFuncionario= funcionario.Email + "@cenabast.cl";
-
-                cmd.Parameters.AddWithValue("@rut", funcionario.Rut);
-                cmd.Parameters.AddWithValue("@nombre", funcionario.Nombre);
-                cmd.Parameters.AddWithValue("@apellido", funcionario.Apellido);
-                cmd.Parameters.AddWithValue("@email", emailFuncionario);
-
-                cmd.Parameters.AddWithValue("@password", DBNull.Value);//, funcionario.Password);
-                cmd.Parameters.AddWithValue("@anexo", DBNull.Value); //, funcionario.Anexo);
-                cmd.Parameters.AddWithValue("@nombreUsuario", DBNull.Value); //, funcionario.NombreUsuario);
-                cmd.Parameters.AddWithValue("@codigoDpto", DBNull.Value); //, funcionario.CodigoDpto);
-                cmd.Parameters.AddWithValue("@codigoSubDpto", DBNull.Value); //, funcionario.CodigoSubDpto);
-                cmd.Parameters.AddWithValue("@codigoUnidad", DBNull.Value); //, funcionario.CodigoUnidad);
-                cmd.Parameters.AddWithValue("@idCargo", DBNull.Value); //, funcionario.IdCargo);
-
-                cmd.Parameters.AddWithValue("@estado", 1); 
-                con.Open();
-                try
-                {
-                    i = cmd.ExecuteNonQuery();
-                }
-                catch (SqlException ex)
-                {
-
-                    Console.WriteLine("Error: " + ex.ToString());
-
-                    if (ex.Number == 2627)
-                    {
-                        res = "Funcionario Ya Existe";
-                    }
-                    else
-                    {
-                        res = "Ha ocurrido un error : SqlNumber " + ex.Number ;
-                    }
-                    i = 0;
-
-                }
-                finally
-                {
-                    // Cierro la Conexión.
-                    con.Close();
-                }
-
-                return res;
-            
-        }
-    }
-
-    public class EjecutivoControlGestion { 
-        
-        public string Rut { get; set; }
-        public string Nombre { get; set; }
-
-        public List<EjecutivoControlGestion> GetEjecutivosControlGestion(string BaseDatos)
-        {
-            EjecutivoControlGestion ejecutivo = null;
-            List<EjecutivoControlGestion> ejecutivos = new List<EjecutivoControlGestion>();
-            string sql = "SELECT f.rut, f.nombre+' '+f.apellido as nombre FROM ControlInsumos.dbo.funcionario f where f.rut in (Select u.rut from "+BaseDatos+".dbo.Usuario u where u.IdPerfil in (1,2) and u.estado = 1 ) and f.estado = 1; ";
+            string res = "";
+            int i = 0;
+            string sql = "INSERT INTO dbo.funcionario ( rut, password, nombre, apellido, anexo, email, nombreUsuario, codigoDpto, codigoSubDpto, codigoUnidad, idCargo, estado) VALUES ( @rut, @password, @nombre, @apellido, @anexo, @email, @nombreUsuario, @codigoDpto, @codigoSubDpto, @codigoUnidad, @idCargo, @estado )";
 
             SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["secondary"].ConnectionString);
             SqlCommand cmd = new SqlCommand(sql, con);
-            SqlDataReader reader;
 
+            string emailFuncionario = funcionario.Email + "@cenabast.cl";
+
+            cmd.Parameters.AddWithValue("@rut", funcionario.Rut);
+            cmd.Parameters.AddWithValue("@nombre", funcionario.Nombre);
+            cmd.Parameters.AddWithValue("@apellido", funcionario.Apellido);
+            cmd.Parameters.AddWithValue("@email", emailFuncionario);
+
+            cmd.Parameters.AddWithValue("@password", DBNull.Value);//, funcionario.Password);
+            cmd.Parameters.AddWithValue("@anexo", DBNull.Value); //, funcionario.Anexo);
+            cmd.Parameters.AddWithValue("@nombreUsuario", DBNull.Value); //, funcionario.NombreUsuario);
+            cmd.Parameters.AddWithValue("@codigoDpto", DBNull.Value); //, funcionario.CodigoDpto);
+            cmd.Parameters.AddWithValue("@codigoSubDpto", DBNull.Value); //, funcionario.CodigoSubDpto);
+            cmd.Parameters.AddWithValue("@codigoUnidad", DBNull.Value); //, funcionario.CodigoUnidad);
+            cmd.Parameters.AddWithValue("@idCargo", DBNull.Value); //, funcionario.IdCargo);
+
+            cmd.Parameters.AddWithValue("@estado", 1);
             con.Open();
             try
             {
-                reader = cmd.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    while (reader.Read())
-                    {
-                        ejecutivo = new EjecutivoControlGestion();
-                        ejecutivo.Rut = reader["rut"].ToString();
-                        ejecutivo.Nombre = reader["nombre"].ToString();
-                        ejecutivos.Add(ejecutivo);
-                    }
-                }
+                i = cmd.ExecuteNonQuery();
             }
-            catch (Exception ex)
+            catch (SqlException ex)
             {
+
                 Console.WriteLine("Error: " + ex.ToString());
+
+                if (ex.Number == 2627)
+                {
+                    res = "Funcionario Ya Existe";
+                }
+                else
+                {
+                    res = "Ha ocurrido un error : SqlNumber " + ex.Number;
+                }
+                i = 0;
+
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
-            return ejecutivos;
-        }
 
+            return res;
+
+        }
     }
 
 
-       
 
 }

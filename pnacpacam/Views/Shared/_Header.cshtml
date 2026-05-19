@@ -1,7 +1,15 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+
     <meta charset="utf-8" />
+
+    <!-- En test -->
+    <meta name="app-base" content="/ProyectosTI/sigepros/">
+
+    <!-- En prod -->
+    <!-- <meta name="app-base" content="/interoperabilidad/pnacpacam/"> -->
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Expires" content="0">
     <meta http-equiv="Last-Modified" content="0">
@@ -11,7 +19,156 @@
 
     @Styles.Render("~/css")
     @Styles.Render("~/plugins-css")
+
+    <style>
+
+                .titulo-principal {
+                    font-size: 1.8rem;
+                    font-weight: 600;
+                    color: #2c3e50; 
+                    border-left: 6px solid #0d6efd; 
+                    padding-left: 1rem;
+                    margin-bottom: 1.5rem;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                }
+
+                .titulo-modal {
+                    font-size: 1.8rem;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    border-left: 6px solid #d4d4d4;
+                    padding-left: 1rem;
+                    margin-bottom: 1.5rem;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    border-bottom: 1px solid #d4d4d4;
+                    padding-right: 20px;
+                }
+
+                .label-formulario {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-size: medium;
+                    color: #555;
+                    display: inline-block;
+                    max-width: 100%;
+                    font-weight: 500;
+                    margin-bottom: 2rem;
+                }
+
+                /* DATATABLE 2.x Botones Exportar */
+
+                .btn-copy {
+                    /* background-color: #eee; */
+                    color: #0d47a1;
+                    padding: 8px 16px;
+                    /* border-radius: 10px; */
+                    border: none;
+                    margin-bottom: 10px;
+                    margin-top: 10px;
+                    /* border: 5px; */
+                    border: 0.5px solid;
+                    border-color: #ddd;
+                }
+
+                .btn-csv {
+                    /* background-color: #eee; */
+                    color: #0d47a1;
+                    padding: 8px 16px;
+                    /* border-radius: 10px; */
+                    border: none;
+                    margin-bottom: 10px;
+                    margin-top: 10px;
+                    /* border: 5px; */
+                    border: 0.5px solid;
+                    border-color: #ddd;
+                }
+
+                .btn-excel {
+                    /* background-color: #eee; */
+                    color: #0d47a1;
+                    padding: 8px 16px;
+                    /* border-radius: 10px; */
+                    border: none;
+                    margin-bottom: 10px;
+                    margin-top: 10px;
+                    /* border: 5px; */
+                    border: 0.5px solid;
+                    border-color: #ddd;
+                }
+
+                .btn-copy:hover {
+                    opacity: 0.8;
+                }
+
+                .btn-excel:hover {
+                    opacity: 0.8;
+                }
+
+                .btn-csv:hover {
+                    opacity: 0.8;
+                }
+
+                /* FIN DATATABLE 2.x Botones Exportar */
+
+                /* DATATABLE 2.x Botones de Paginacion */
+
+                /* Contenedor de la paginación */
+
+                .dt-paging {
+                    margin-top: 15px;
+                    text-align: center;
+                }
+
+                /* Botones de paginación */
+                .dt-paging-button {
+                    display: inline-block;
+                    background-color: #f0f0f0;
+                    color: #333;
+                    border: 1px solid #ccc;
+                    padding: 6px 12px;
+                    margin: 2px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: background-color 0.3s ease;
+                }
+
+                    /* Al pasar el mouse */
+                    .dt-paging-button:hover {
+                        background-color: #e0e0e0;
+                        color: #000;
+                    }
+
+                    /* Botón activo */
+                    .dt-paging-button.current {
+                        background-color: #007bff;
+                        color: #fff !important;
+                        border-color: #007bff;
+                    }
+
+                    /* Botón deshabilitado */
+                    .dt-paging-button.disabled {
+                        background-color: #eee;
+                        color: #aaa;
+                        cursor: not-allowed;
+                    }
+
+                /* Fin DATATABLE 2.x Botones de Paginacion */
+
+
+
+
+
+
+
+
+
+    </style>
+
+
+
 </head>
 <body>
+    <div id="toast-container-app" class="toast-container"></div>
+
 </body>
 </html>

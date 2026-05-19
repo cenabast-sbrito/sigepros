@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Configuration;
-using System.Data;
 using System.Data.SqlClient;
 
 namespace pnacpacam
@@ -12,12 +11,13 @@ namespace pnacpacam
         public string Username { get; set; }
         [Required]
         public string Password { get; set; }
+        public string Programa { get; set; }
         //NO ESTA EN USO
         public bool GetUsuario(string rut, string password)
         {
 
-            string sql = "select * from inventarioUsuarios u inner join aa_ControlInsumos.dbo.funcionario f on f.rut = u.Rut where f.password = @password and u.Rut = @rut and u.Estado = 1 ";
-            SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["inventario"].ConnectionString);
+            string sql = "select * from Usuarios u inner join aa_ControlInsumos.dbo.funcionario f on f.rut = u.Rut where f.password = @password and u.Rut = @rut and u.Estado = 1 ";
+            SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["pnacpacam"].ConnectionString);
             SqlCommand cmd = new SqlCommand(sql, con);
             cmd.Parameters.AddWithValue("@rut", rut);
             cmd.Parameters.AddWithValue("@password", password);
@@ -40,7 +40,6 @@ namespace pnacpacam
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
 
@@ -73,13 +72,11 @@ namespace pnacpacam
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
 
             return isValid;
         }
-
         public bool GetAdministrador(string rut, string password)
         {
 
@@ -107,14 +104,12 @@ namespace pnacpacam
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
 
             return isValid;
 
         }
-
         public bool GetFuncionarios(string rut, string password)
         {
 
@@ -142,7 +137,6 @@ namespace pnacpacam
             }
             finally
             {
-                // Cierro la Conexión.
                 con.Close();
             }
 

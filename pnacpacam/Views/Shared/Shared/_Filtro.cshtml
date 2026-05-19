@@ -1,0 +1,187 @@
+﻿@model pnacpacam.Models.Seleccion
+
+@{var item = Model.item; }
+
+@{
+    Layout = null;
+}
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+
+    <style>
+        /* Caja del filtro */
+        .filtro-box {
+            background-color: #E6EFF8; /* Azul claro institucional */
+            border-left: 5px solid #003A8F; /* Azul gobierno */
+            padding: 12px 14px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            color: #495057;
+        }
+
+        
+        /* Labels más discretos */
+        .labelFiltro {
+            /* font-size: 0.75rem;*/
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 2px;
+        }
+
+        /* Inputs compactos */
+        .filtro-box .form-control {
+            padding: 4px 6px;
+            height: 30px;
+            /*font-size: 0.8rem;*/
+        }
+
+        /* Select2 alineado */
+        .filtro-box .select2-container .select2-selection--single {
+            height: 30px;
+        }
+
+        .filtro-box .select2-selection__rendered {
+            line-height: 28px !important;
+           /* font-size: 0.8rem;*/
+        }
+
+        /* Botón compacto */
+        #btnFiltroConsulta {
+           /* height: 30px;*/
+           /* font-size: 0.8rem;*/
+            font-weight: 600;
+        }
+
+
+        .select2-container .select2-selection--single {
+            height: 32px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            color: #aaa;
+        }
+
+            /* Texto seleccionado */
+            .select2-container .select2-selection--single .select2-selection__rendered {
+                line-height: 32px;
+                padding-left: 10px;
+                padding-right: 30px;
+                color: #777777;
+            }
+
+            /* Flecha */
+            .select2-container .select2-selection--single .select2-selection__arrow {
+                height: 32px;
+                right: 6px;
+            }
+
+        /* Focus (igual que form-control) */
+        .select2-container--default.select2-container--focus
+        .select2-selection--single {
+            border-color: greenyellow;
+            box-shadow: 0 0 0 0.15rem rgba(13,110,253,.25);
+        }
+
+        /* Disabled */
+        .select2-container--disabled .select2-selection--single {
+            background-color: #c6c9c9;
+        }
+
+    </style>
+
+</head>
+<body>
+    
+
+                <div id="filtrosConsulta"
+                     class="container-fluid filtro-box">
+
+                    @if (item == "filtroFacturas")
+                    {
+                        <form id="form-filtro">
+
+                            
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+
+                                            <label class="labelFiltro d-flex align-items-center gap-1">
+                                                Proveedor
+                                                <i class="fas fa-info-circle text-muted"
+                                                   data-bs-toggle="tooltip"
+                                                   data-bs-placement="right"
+                                                   title="El filtro se aplica según el proveedor asociado a la factura">
+                                                </i>
+                                            </label>
+                                            <div class="d-flex gap-1" style="display: flex;">
+                                                <input id="_rutProveedor"
+                                                       class="form-control form-control-sm"
+                                                       type="text"
+                                                       placeholder="RUT"
+                                                       style="width: 30%;" />
+
+                                                <select id="_nombreProveedor"
+                                                        class="form-control form-control-sm select2"
+                                                        style="width: 70%;"></select>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label for="_anio" class="labelFiltro">Año</label>
+                                            <input id="_anio"
+                                                   class="form-control form-control-sm"
+                                                   type="number"
+                                                   placeholder="YYYY" />
+                                        </div>
+
+                                        <!-- Factura -->
+                                        <div class="col-md-2">
+                                            <label for ="_nfactura" class="labelFiltro">Factura</label>
+                                            <input id="_nfactura"
+                                                   class="form-control form-control-sm"
+                                                   type="number" />
+                                        </div>
+
+                                        <!-- Estado -->
+                                        <div class="col-md-3">
+                                            <label for="_tEstados" class="labelFiltro">Estado</label>
+                                            <select id="_tEstados"
+                                                    class="form-control select2"></select>
+                                            <input id="_nEstado" type="text" hidden disabled />
+                                        </div>
+
+                                    </div>
+
+                               
+
+                            <!-- ========== BLOQUE 6: APLICAR FILTRO ========== -->
+                            <div class="row g-2 align-items-end" style="/* border: 1px dashed #d0d0d0; */ padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                                <div class="col-md-2 d-grid">
+
+                                    <button id="btnFiltroConsulta"
+                                            type="button"
+                                            class="btn btn-primary"
+                                            onclick="_getFacturas();">
+                                        <i class="fas fa-filter"></i> APLICAR FILTRO
+                                    </button>
+
+
+                                </div>
+                            </div>
+
+                        </form>
+
+                    }
+                </div>
+
+            
+</body>
+
+
+
+

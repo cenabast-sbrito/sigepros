@@ -1,97 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
+﻿using System.Configuration;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace pnacpacam.Controllers
 {
     [Authorize]
-    [SessionExpire]
     [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]
     public class ConfigController : Controller
     {
-        public string getVersion()
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            return "versión "+ConfigurationManager.AppSettings["version"].ToString();
-        }
-        // GET: Config
-        public ActionResult Index()
-        {
-            return View();
-        }
-
-        // GET: Config/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: Config/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Config/Create
-        [HttpPost]
-        public ActionResult Create(FormCollection collection)
-        {
-            try
+            // 1. Validar sesión ASP.NET
+            if (Session == null || Session.IsNewSession)
             {
-                // TODO: Add insert logic here
+                CerrarSesion(filterContext);
+                return;
+            }
 
-                return RedirectToAction("Index");
-            }
-            catch
+            // 2. Validar cookie de Forms Authentication
+            if (!Request.IsAuthenticated || User == null || !User.Identity.IsAuthenticated)
             {
-                return View();
+                CerrarSesion(filterContext);
+                return;
             }
+
+            base.OnActionExecuting(filterContext);
         }
 
-        // GET: Config/Edit/5
-        public ActionResult Edit(int id)
+        private void CerrarSesion(ActionExecutingContext filterContext)
         {
-            return View();
+            // Limpiar sesión
+            Session.Clear();
+            Session.Abandon();
+
+            // Cerrar Forms Auth
+            FormsAuthentication.SignOut();
+
+            // Eliminar cookie de autenticación
+            if (Request.Cookies[FormsAuthentication.FormsCookieName] != null)
+            {
+                var cookie = new HttpCookie(FormsAuthentication.FormsCookieName)
+                {
+                    Expires = System.DateTime.Now.AddDays(-1)
+                };
+                Response.Cookies.Add(cookie);
+            }
+
+            // Redirigir a login
+            filterContext.Result = RedirectToAction("Index", "Login");
         }
 
-        // POST: Config/Edit/5
-        [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        [HttpGet]
+        public ActionResult GetVersion()
         {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Config/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Config/Delete/5
-        [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            return Content(
+                "versión " + ConfigurationManager.AppSettings["pnacpacam_versionAPP"],
+                "text/plain"
+            );
         }
     }
 }

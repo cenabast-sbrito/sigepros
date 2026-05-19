@@ -1,0 +1,209 @@
+﻿
+@Html.AntiForgeryToken()
+
+<style>
+    .row {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .block1 {
+        width: 70%;
+        float: left;
+    }
+
+    .block2 {
+        width: 30%;
+        float: left;
+    }
+
+    .block3 {
+        width: 100%;
+        float: left;
+    }
+</style>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+        $('#href_facturaHistorica').on('shown.bs.tab', function () {
+            try {
+
+                _ocultarImagen();
+
+            } catch (err) {
+                console.error("Error al inicializar Factura Histórica:", err);
+            }
+        });
+    });
+    document.addEventListener("DOMContentLoaded", () => {
+        $('#href_facturaHistoricaMinsal').on('shown.bs.tab', function () {
+            try {
+
+                _ocultarImagen();
+
+            } catch (err) {
+                console.error("Error al inicializar Factura Histórica:", err);
+            }
+        });
+    });
+
+</script>
+
+<div class="panel panel-primary">
+
+    <div class="row" style="display: inline-flex;">
+
+        <div class="titulo-principal">
+            <h2>Expedientes Finalizados</h2>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="panel panel-primary">
+
+    <div class="row" style="display: inline-flex;">
+
+        <div class="col-md-6 col-lg-2 mb-3">
+            <label for="_tEstados">&nbsp;</label>
+            <button id="btnFiltroConsultaHistorico" type="button" class="btn btn-primary"
+                    onclick="_getFacturasHistoricas();">
+                <i class="fas fa-sync"></i> ACTUALIZAR
+            </button>
+        </div>
+
+    </div>
+
+    <div class="row" style="">
+
+        @Html.Partial("Tablas/_Tablas", new pnacpacam.Models.Seleccion { item = "FacturasHistorico" })
+
+    </div>
+</div>
+
+
+
+
+
+
+<script>
+
+
+    function _getFacturasHistoricas() {
+
+        let rol = sessionStorage.getItem("_pnacpacam_Rol");
+        let rutProveedor = document.getElementById('_rutProveedor').value;
+
+        reset('tablaFacturasHistorico');
+
+        let nFactura = document.getElementById('_nfactura').value;
+        let anio = document.getElementById('_anio').value;
+        let estado = document.getElementById('_tEstados').value;
+
+        $(".loader_Tablas").fadeIn("slow");
+
+        let json = {
+            rutProveedor: rutProveedor,
+            nFactura: nFactura,
+            anio: anio,
+            estado: estado
+        };
+
+        try {
+
+            // ✅ Destruir instancia previa si existe
+            if ($.fn.DataTable.isDataTable('#tablaFacturasHistorico')) {
+                $('#tablaFacturasHistorico').DataTable().destroy();
+            }
+
+            let table = new DataTable('#tablaFacturasHistorico', {
+                layout: {
+                    topStart: {
+                        buttons: [
+                            { extend: 'copy', text: '<i class="fas fa-copy"></i> Copiar', className: 'btn-copy' },
+                            { extend: 'csv', text: '<i class="fas fa-file-csv"></i> CSV', className: 'btn-csv' },
+                            { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel', className: 'btn-excel' }
+                        ]
+                    }
+                },
+
+                features: {
+                    lengthChange: false,
+                    searching: false
+                },
+
+                pageLength: 10,
+                processing: true,
+                serverSide: false,
+                destroy: true,
+
+                ajax: {
+                    url: apiUrl("Proveedor/getFacturasHistoricas"),
+                    type: "GET",
+                    data: json,
+                    dataType: "json",
+
+                    dataSrc: function (response) {
+
+                        if (!response || response.state === false) {
+                            return [];
+                        }
+
+                        if (!Array.isArray(response.resultado)) {
+                            return [];
+                        }
+
+                        return response.resultado;
+
+                    },
+
+                    error: function (xhr) {
+                        if (xhr.status === 401 || xhr.status === 440 || xhr.status === 419 || xhr.status === 404) {
+                            avisoFinProceso("El recurso solicitado no está disponible.");
+                        }
+                    }
+
+                }
+                ,
+                columns: [
+                    { data: "ano" },
+                    { data: "LIFNR" },
+                    { data: "NAME1" },
+                    { data: "CodigoMaterial" },
+                    { data: "Denominacion" },
+                    { data: "NFactura" },
+                    { data: "Expediente" },
+                    {
+                        data: null,
+                        render: function (data, type, full) {
+                            return `
+                                            <div style="color: burlywood">
+                                                <p>[ ${full.TEstadoTiempoPresente ?? ''} ]</p>
+                                                <small>${full.TObservacion ?? ''}</small>
+                                            </div>`;
+                        }
+                    }
+                ],
+                language: {
+                    zeroRecords: "No hay registros disponibles",
+                    info: "Mostrando registros _START_ a _END_",
+                    infoEmpty: "No hay registros disponibles",
+                    paginate: {
+                        previous: '<i class="fas fa-arrow-left"></i>',
+                        next: '<i class="fas fa-arrow-right"></i>'
+                    }
+                },
+                initComplete: function () {
+                    $(".loader_Tablas").fadeOut("slow");
+                }
+            });
+
+        } catch (ex) {
+            console.error("Error:", ex.message);
+            $(".loader_Tablas").fadeOut("slow");
+        }
+    }
+
+</script>

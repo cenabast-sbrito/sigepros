@@ -1,0 +1,75 @@
+﻿<div class="row">
+    <!-- Rut Proveedor y Nombre Proveedor -->
+    <div class="col-md-6 col-lg-2 mb-3">
+        <label for="_rutProveedor">Rut Proveedor</label>
+        <input id="_rutProveedorXXX" class="form-control" type="text" required />
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <label for="_nombreProveedor">Nombre Proveedor</label>
+        <select id="_nombreProveedor" class="form-control select2" required></select>
+    </div>
+
+    <!-- Año -->
+    <div class="col-md-6 col-lg-2 mb-3">
+        <label for="_anio">Año</label>
+        <input id="_anioXXX" type="text" class="form-control" placeholder="Año" required />
+    </div>
+
+    <!-- Factura -->
+    <div class="col-md-6 col-lg-1 mb-3">
+        <label for="_nfactura">Factura</label>
+        <input id="_nfacturaXXX" type="text" class="form-control" placeholder="Factura" required />
+    </div>
+
+    <!-- Estado -->
+    <div class="col-md-6 col-lg-2 mb-3">
+        <label for="_tEstadosXXX">EstadoXXX</label>
+        <select id="_tEstadosXXX" class="form-control select2" required></select>
+        <input id="_nEstadoXXX" type="hidden" disabled />
+    </div>
+
+    <!-- Botón -->
+    <div class="col-md-6 col-lg-2 mb-3">
+        <label for="_tEstados">&nbsp;</label>
+        <button id="btnFiltroConsultaXXX" type="button" class="btn btn-primary"
+                onclick="_getFacturas();">
+            <i class="fas fa-sync"></i> APLICAR FILTRO XXX
+        </button>
+    </div>
+</div>
+
+<div class="row panel-titulo">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <h3>Facturas</h3>
+    </div>
+</div>
+
+<div class="container-datatable">
+    <div class="row">
+        TABLA XXXXXXXXX
+        <table id="tablaFacturasXXXX" class="table table-hover table-bordered table-striped table-border-blue" width="100%">
+
+            <thead>
+                <tr>
+                    <th>Rut</th>
+                    <th>Nombre</th>
+                    <th>Material</th>
+                    <th>Denominacion</th>
+                    <th>Factura</th>
+                    <th>Expediente</th>
+                    <th>Estado / Acción</th>
+                    <th>Crear Expediente</th>
+                    @*<th>Documentos Pendientes</th>*@
+                    <th>Ver Expediente</th>
+                    <th>ver Guías</th>
+                    <th>Factura Comisión</th>
+                </tr>
+            </thead>
+
+        </table>
+
+
+    </div>
+</div>
+
+

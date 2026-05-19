@@ -1,0 +1,255 @@
+﻿@model pnacpacam.Models.VariablesEntorno
+
+@{
+    Layout = null;
+}
+@Html.AntiForgeryToken()
+
+<style>
+    .input-error {
+        border: 2px solid #dc3545 !important;
+        background-color: #fff5f5;
+    }
+
+    .input-ok {
+        border: 2px solid #198754 !important;
+    }
+</style>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+        //console.log('document.addEventListener(DOMContentLoaded, ()..');
+        $('#href_subirDocumentos').on('shown.bs.tab', function () {
+            try {
+                _ocultarImagen();
+                $('#organismoDefinido').val($('#organismo').val());
+                _getListProveedores('_rutProveedorUpload', '_nombreProveedorUpload');
+            } catch (err) {
+                console.error("Error al inicializar carga de documentos:", err);
+            }
+        });
+    });
+
+</script>
+
+<div class="panel panel-primary">
+
+    <div class="row">
+        <div class="titulo-principal">
+            <h2>Subir documento Adjunto PDF</h2>
+        </div>
+    </div>
+
+    <form role="form" id="form-upload-documentos" method="POST" enctype="multipart/form-data" asp-action="UploadFile">
+
+
+        <div class="panel-heading">
+
+            <div class="" style="width: 100%;">
+
+                <div class="container-fluid filtro-box" >
+
+                    <div>
+
+                        <div style="width: 100%;">
+                            <label class="labelFiltro">Proveedor</label>
+
+                            <div style="display:flex; align-items:center; gap:12px;">
+
+                                <input id="_rutProveedorUpload"
+                                       name="_rutProveedorUpload"
+                                       class="form-control"
+                                       type="text"
+                                       style="width:140px;" />
+
+                                <select id="_nombreProveedorUpload"
+                                        name="_nombreProveedorUpload"
+                                        class="form-control select2"
+                                        style="flex:1;">
+                                </select>
+
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        onclick="llamarDocumentosAdjuntos();">
+                                    Ver documentos
+                                </button>
+
+                            </div>
+                        </div>
+
+                        <div class="field-error"></div>
+
+                    </div>
+
+
+
+
+                    <!--<div >
+
+
+        <div style="width: 100%;">
+            <label class="labelFiltro">Proveedor</label>
+            <div style="display: flex;">
+                <input id="_rutProveedorUpload"
+                       name="_rutProveedorUpload"
+                       class="form-control"
+                       type="text"
+                       style="width:auto;" />
+
+                <select id="_nombreProveedorUpload"
+                        name="_nombreProveedorUpload"
+                        class="form-control select2" style="width:100%;"
+                        ></select>-->
+                    <!-- Botón ver Documentos -->
+                    <!--<div class="inputFiltro">
+                <button type="button" class="btn btn-primary" onclick="llamarDocumentosAdjuntos();">ver Documentos</button>
+            </div>
+
+        </div>
+
+    </div>-->
+                    <!-- CONTENEDOR FIJO DEL ERROR -->
+                    <!--<div class="field-error"></div>
+
+    </div>-->
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="panel-body">
+
+            <div class="container-fluid" style="background-color: #ccc; padding: 15px; border-radius: 5px;">
+
+                <div class="panel-heading d-flex flex-wrap gap-3">
+
+                    <!-- Factura -->
+                    <div class="filtro">
+                        <label class="labelFiltro">Nro. Documento</label>
+                        <div class="inputFiltro">
+
+
+                            <style>
+                                .select2-container .select2-selection--single {
+                                    height: 32px;
+                                    border: 1px solid #ced4da;
+                                    border-radius: 4px;
+                                    font-size: 14px;
+                                    display: flex;
+                                    align-items: center;
+                                    color: #aaa;
+                                }
+
+                                    /* Texto seleccionado */
+                                    .select2-container .select2-selection--single .select2-selection__rendered {
+                                        line-height: 32px;
+                                        padding-left: 10px;
+                                        padding-right: 30px;
+                                        color: #777777;
+                                    }
+
+                                    /* Flecha */
+                                    .select2-container .select2-selection--single .select2-selection__arrow {
+                                        height: 32px;
+                                        right: 6px;
+                                    }
+
+                                /* Focus (igual que form-control) */
+                                .select2-container--default.select2-container--focus
+                                .select2-selection--single {
+                                    border-color: greenyellow;
+                                    box-shadow: 0 0 0 0.15rem rgba(13,110,253,.25);
+                                }
+
+                                /* Disabled */
+                                .select2-container--disabled .select2-selection--single {
+                                    background-color: #c6c9c9;
+                                }
+
+
+
+
+                            </style>
+
+                            <select id="_facturaLista"
+                                    class="form-control select2"
+                                    required>
+                            </select>
+
+                        </div>
+                    </div>
+
+
+                    <!-- Selección del tipo de Documento -->
+                    <div class="filtro">
+                        <label class="labelFiltro">Tipo de Documento</label>
+                        <div class="inputFiltro">
+                            <select id="_tipoDocumentoUpload" class="form-control select2">
+                                <option value="DG">Guía</option>
+                                <option value="NC" selected>Nota Crédito</option>
+                                <option value="ND">Nota Débito</option>
+                                <option value="FC">FACTURA COMISIÓN</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <!-- Seleccionar Documento -->
+                    <div class="filtro">
+                        <label class="labelFiltro">Tipo de Documento</label>
+                        <div class="inputFiltro">
+                            <input id="file-upload-documento" type="file" name="archivoPDF" accept="application/pdf" class="form-control" style="height: 50px !important; align-content: center; font-weight: bold;" />
+
+
+                        </div>
+                    </div>
+
+                    <!-- Botón subir Documento -->
+                    <div class="filtro" style="border-right: 1px solid; color: darkgray;">
+                        <label class="labelFiltro">Documentos Adjuntos</label>
+                        <div class="inputFiltro">
+                            <button id="btnFileUploadDocumento" type="submit" class="btn btn-primary" style="width: 100%; margin-top: 5px;">Cargar </button>
+                            <div class="col-6 text-start"><span id="nombreFile" class="body-xs bold"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        @*<div class="panel-footer" style="text-align: left;">
+            <div class="row">
+
+                <div class="accion_cargar_mensaje" style="text-align: center; color: #dba8a8; font-size: large;" hidden></div>
+
+            </div>
+        </div>*@
+
+</form>
+
+</div>
+
+<div class="panel panel-primary">
+    <div class="labelFiltro"> DOCUMENTOS ADJUNTOS </div>
+    <table id="tablaDocumentosAdjuntos-1" class="tabla-documentos">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nombre del archivo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aquí se llenan las filas desde el AJAX -->
+        </tbody>
+    </table>
+</div>
+
+
+<div class="panel panel-primary" style="background-color: aliceblue;">
+    <div class="labelFiltro"> FACTURA COMISION </div>
+    <div class="labelFiltro" id="upload_facturaComision"> </div>
+</div>

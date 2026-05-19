@@ -1,5 +1,4 @@
-﻿using System.Web;
-using System.Web.Optimization;
+﻿using System.Web.Optimization;
 
 
 namespace pnacpacam
@@ -9,15 +8,20 @@ namespace pnacpacam
         // Para obtener más información sobre las uniones, visite https://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
-
-            bundles.Add( new StyleBundle("~/css")
+            bundles.Add(new StyleBundle("~/css")
                 .Include(
                         "~/Content/css/normalize.css",
-                        "~/Content/css/style.css",                        
+                        "~/Content/css/style.css",
                         "~/Content/css/bootstrap.css",
-                        "~/Content/css/pnacpacam.css",
-                        "~/Content/css/css-select/select2.min.css"
-                        )
+                        "~/Content/css/css-select/select2.min.css",
+                        "~/Content/css/Spinner.css"
+                         )
+            );
+            bundles.Add(new StyleBundle("~/datatableExport-css")
+                .Include(
+                        "~/Content/datatableExport/buttons.dataTables.css",
+                        "~/Content/datatableExport/dataTables.dataTables.css"
+                         )
             );
             bundles.Add(new ScriptBundle("~/core-js")
                 .Include(
@@ -40,21 +44,34 @@ namespace pnacpacam
                         "~/Scripts/js/plugins/DataTables/dataTables.bootstrap.js",
                         "~/Scripts/js/plugins/js-select/select2.min.js"
             ));
+            bundles.Add(new ScriptBundle("~/factura").Include("~/Scripts/js/app/_factura.js"));
+            bundles.Add(new ScriptBundle("~/guia").Include("~/Scripts/js/app/_guia.js"));
+            bundles.Add(new ScriptBundle("~/proveedor").Include("~/Scripts/js/app/_proveedor.js"));
             bundles.Add(new ScriptBundle("~/login").Include("~/Scripts/js/app/login.js"));
             bundles.Add(new ScriptBundle("~/app").Include("~/Scripts/js/app/app.js"));
-            bundles.Add(new ScriptBundle("~/inventario").Include("~/Scripts/js/app/inventario.js"));
-            bundles.Add(new ScriptBundle("~/complementario").Include("~/Scripts/js/app/complementario.js"));
-            bundles.Add(new ScriptBundle("~/revision-mv").Include("~/Scripts/js/app/detalleInventario.js"));
-            bundles.Add(new ScriptBundle("~/reporte").Include("~/Scripts/js/app/reporte.js"));
-            bundles.Add(new ScriptBundle("~/carga").Include("~/Scripts/js/app/cargaInventario.js"));
-            bundles.Add(new ScriptBundle("~/cierre").Include("~/Scripts/js/app/cierreInventario.js"));
-            bundles.Add(new ScriptBundle("~/compra").Include("~/Scripts/js/app/compra.js"));
-            bundles.Add(new ScriptBundle("~/venta").Include("~/Scripts/js/app/venta.js"));
+            bundles.Add(new ScriptBundle("~/tools").Include("~/Scripts/js/app/tools.js"));
             bundles.Add(new ScriptBundle("~/producto").Include("~/Scripts/js/app/producto.js"));
+            bundles.Add(new ScriptBundle("~/rol").Include("~/Scripts/js/app/_rol.js"));
             bundles.Add(new ScriptBundle("~/usuarios").Include("~/Scripts/js/app/usuarios.js"));
-            bundles.Add(new ScriptBundle("~/proveedor").Include("~/Scripts/js/app/proveedor.js"));
-            bundles.Add(new ScriptBundle("~/poblarListas").Include("~/Scripts/js/app/poblarListas.js"));
             bundles.Add(new ScriptBundle("~/administraFormularios").Include("~/Scripts/js/app/administraFormularios.js"));
+            bundles.Add(new ScriptBundle("~/zdis022").Include("~/Scripts/js/app/_zdis022.js"));
+            bundles.Add(new ScriptBundle("~/filtro").Include("~/Scripts/js/app/_filtro.js"));
+            bundles.Add(new ScriptBundle("~/documento").Include("~/Scripts/js/app/_documento.js"));
+
+            bundles.Add(new ScriptBundle("~/datatableExport-js")
+           .Include(
+            "~/Scripts/datatableExport/jquery-3.7.1.js",
+            "~/Scripts/datatableExport/dataTables.js",
+            "~/Scripts/datatableExport/dataTables.buttons.js",
+            "~/Scripts/datatableExport/buttons.dataTables.js",
+            "~/Scripts/datatableExport/jszip.min.js",
+            "~/Scripts/datatableExport/pdfmake.min.js",
+            "~/Scripts/datatableExport/vfs_fonts.js",
+            "~/Scripts/datatableExport/buttons.html5.min.js",
+            "~/Scripts/datatableExport/buttons.print.min.js"
+            ));
+
+
             BundleTable.EnableOptimizations = true;
         }
     }

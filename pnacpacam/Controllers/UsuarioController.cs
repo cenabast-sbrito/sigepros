@@ -1,47 +1,62 @@
-﻿using pnacpacam.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using pnacpacam.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Data.SqlClient;
 using System.Web.Mvc;
 
 namespace pnacpacam.Controllers
 {
     [Authorize]
-    [SessionExpire]
     [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]
     public class UsuarioController : Controller
     {
-        // GET: Usuarios
-        public JsonResult Index()
+        public JsonResult GetUsuarios()
         {
-            UsuarioViewModelModify uvmm = new UsuarioViewModelModify();
-//            return Json(uvmm.GeUsuarios(Session["StringConexion"].ToString()), JsonRequestBehavior.AllowGet);
+            Usuario uvmm = new Usuario();
             return Json(uvmm.GeUsuarios(), JsonRequestBehavior.AllowGet);
         }
 
-        // GET: Usuario
         public JsonResult GetUsuario(string rut)
         {
-            UsuarioViewModelModify usuario = new UsuarioViewModelModify();
-            usuario = usuario.GetUsuario(rut, Session["StringConexion"].ToString());
-            return Json(usuario, JsonRequestBehavior.AllowGet);
+            Usuario usuario = new Usuario();
+            usuario = usuario.GetUsuario2 (rut);
+            return Json( usuario, JsonRequestBehavior.AllowGet);
         }
-        [HttpPost]
-        
+
         public JsonResult SetUsuario(Usuario user)
         {
-            int i = user.Ingresar(user);
-            if (i > 0)
+
+            string i = user.Ingresar(user);
+            if (i == "")
             {
                 return Json(new { status = true, message = "Se ha agregado el Usuario exitosamente." });
             }
-            else {
-                return Json(new { status = false, message = "Ha ocurrido un error." });
+            else
+            {
+                return Json(new { status = false, message = i });
             }
 
+        }
+
+        public JsonResult ToggleUsuario(Usuario usuario)
+        {
+            try
+            {
+                var rows = usuario.toggleUsuario(usuario); // el método corregido
+                return rows > 0
+                    ? Json(new { status = true, message = "Usuario actualizado correctamente." })
+                    : Json(new { status = false, message = "No se actualizó ningún registro." });
+            }
+            catch (SqlException ex)
+            {
+                // Los THROW 5000x del SP caen aquí con Number personalizado
+                return Json(new { status = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { status = false, message = "Ocurrió un error al actualizar el usuario." });
+            }
         }
         public JsonResult GetName(string name)
         {
@@ -49,8 +64,6 @@ namespace pnacpacam.Controllers
             var usersList = users.GetName(name);
             return Json(usersList, JsonRequestBehavior.AllowGet);
         }
-        
-        [HttpPut]
         public JsonResult PutUsuario(Usuario user)
         {
             int i = user.Actualizar(user);
@@ -63,27 +76,21 @@ namespace pnacpacam.Controllers
                 return Json(new { status = false, message = "Ha ocurrido un error." });
             }
         }
+        public JsonResult DelUsuario(string rut, int estado)
+        {
+            Usuario user = new Usuario();
+            int i = user.Eliminar(rut, estado);
+            if (i > 0)
+            {
+                return Json(new { status = true, message = "Se ha eliminado el Usuario exitosamente." });
+            }
+            else
+            {
+                return Json(new { status = false, message = "Ha ocurrido un error." });
+            }
+        }
+
         
-        /*
-        public JsonResult GetDepartamentos()
-        {
-            Compra departamentos = new Compra();
-            var funcsList = departamentos.getDepartamentos();
-            return Json(funcsList, JsonRequestBehavior.AllowGet);
-        }*/
-        /*
-        public JsonResult GetSubDepartamentos(string CodigoDpto)
-        {
-            Compra.SubDepartamentos departamentos = new Compra.SubDepartamentos();
-            var funcsList = departamentos.getSubDepartamentos(CodigoDpto);
-            return Json(funcsList, JsonRequestBehavior.AllowGet);
-        }
-        public JsonResult GetUnidades(string CodigoDpto, string CodigoSubDepto)
-        {
-            Compra.SubDepartamentos.Unidades unidades = new Compra.SubDepartamentos.Unidades();
-            var funcsList = unidades.getUnidades(CodigoDpto, CodigoSubDepto);
-            return Json(funcsList, JsonRequestBehavior.AllowGet);
-        }
-    */
+
     }
 }

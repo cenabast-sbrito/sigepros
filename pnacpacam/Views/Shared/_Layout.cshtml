@@ -8,18 +8,79 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">PNAC PACAM - CENABAST</a>
+                <a class="navbar-brand" href="#">PNAC/PACAM - CENABAST</a>
             </div>
             @Html.Partial("_Menu")
         </div>
     </div>
 </header>
 <main>
+
     <div class="container-fluid margin-top">
         <div class="col-md-12">
             @RenderBody()
         </div>
         <!--fin side bar-->
     </div>
+
+    <!-- uso exclusivo inicio de sesión -->
+    <div id="app-messages" style="position: relative; text-align: center; font-family: var(--fontFamilyBase); color: red; font-size: small; font-weight: 600; "></div>
+
 </main>
 @Html.Partial("_Footer")
+
+
+<script>
+
+    /* uso exclusivo inicio de sesión */
+
+    function showMessage(containerId, text, type = "info", autoCloseMs = 5000) {
+        const container = document.getElementById(containerId || "app-messages");
+        if (!container) return;
+
+        const div = document.createElement("div");
+        div.className = `app-alert app-alert-${type}`;
+        div.innerHTML = `
+        <span>${escapeHtml(text)}</span>
+        <span class="close" aria-label="Cerrar" title="Cerrar">&times;</span>
+    `;
+
+        // Cerrar manual
+        div.querySelector(".close").addEventListener("click", () => {
+            div.remove();
+        });
+
+        // Autocierre opcional
+        if (autoCloseMs && autoCloseMs > 0) {
+            setTimeout(() => div.remove(), autoCloseMs);
+        }
+
+        container.appendChild(div);
+    }
+
+    function showMessageInfo(text, options = {}) {
+        showMessage(options.containerId, text, "info", options.autoCloseMs ?? 5000);
+    }
+
+    function showMessageError(text, options = {}) {
+        showMessage(options.containerId, text, "error", options.autoCloseMs ?? 7000);
+    }
+
+    function showMessageSuccess(text, options = {}) {
+        showMessage(options.containerId, text, "success", options.autoCloseMs ?? 4000);
+    }
+
+    // Sanitizador mínimo para evitar inyección en mensajes
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, function (m) {
+            return ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            })[m];
+        });
+    }
+
+</script>

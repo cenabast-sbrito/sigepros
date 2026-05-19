@@ -1,0 +1,50 @@
+﻿<style>
+
+
+    /* Contenedor que ocupa todo el ancho disponible */
+    .pni-bg {
+        position: relative; /* útil si luego quieres posicionar overlays */
+        z-index: -1; /* mantener al fondo, evita z-index muy negativo */
+        margin: 0 auto; /* centra el contenedor si tiene ancho fijo */
+        width: 100%;
+        min-height: 60vh; /* alto visible (ajusta según tu layout) */
+
+        display: flex; /* centrado con flex */
+        justify-content: center; /* centra horizontal */
+        align-items: center; /* centra vertical */
+        text-align: center; /* fallback para inline */
+    }
+
+        /* Imagen responsive centrada */
+        .pni-bg img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain; /* mantiene proporción */
+        }
+</style>
+
+
+@*<div id="_imagenPNacPacam" style=" z-index: -9999; display: flex; align-items: center; justify-content: center; position: fixed; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 100%;">*@
+
+@{
+    string imagen = "";
+
+    if (User.IsInRole("ADM") || User.IsInRole("MIN"))
+    {
+        imagen = "../Content/img/PNACPACAM.png";
+    }
+    else if (User.IsInRole("ADP") || User.IsInRole("MIP"))
+    {
+        imagen = "../Content/img/PNI2.png";
+    }
+}
+
+@*<div id="_imagenPNacPacam" style=" z-index: -9999; margin: auto; width: 100%;">
+    
+</div>*@
+
+
+<div id="_imagenPNacPacam" class="pni-bg">
+    <img src="@imagen" />
+</div>
+``

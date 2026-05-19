@@ -1,0 +1,263 @@
+﻿@model pnacpacam.Models.VariablesEntorno
+
+@{
+    Layout = null;
+}
+@Html.AntiForgeryToken()
+@{
+    string programa = "";
+
+    if (User.IsInRole("ADM"))
+    {
+        programa = "PNACPACAM";
+    }
+    else if (User.IsInRole("ADP"))
+    {
+        programa = "PNI";
+    }
+}
+<script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+        $('#href_cargaPlanilla').on('shown.bs.tab', function () {
+            try {
+                _ocultarImagen();
+                $('#organismoDefinido').val($('#organismo').val());
+                _getListProveedores('_rutProveedorCarga', '_nombreProveedorCarga');
+            } catch (err) {
+                console.error("Error al inicializar carga de datos:", err);
+            }
+        });
+    });
+
+</script>
+
+<div class="panel panel-primary">
+
+    <div class="row" style="display: inline-flex;">
+
+        <div class="titulo-principal">
+            <h2>Carga de Planilla ZDIS022</h2> 
+        </div>
+
+        <style>
+            .organismoprogramatittle {
+                font-family: var(--fontFamilyBase);
+                margin-top: 20px;
+                opacity: .7;
+                height: 34px;
+                padding: 6px 12px;
+                font-size: 14px;
+                line-height: 1.42857143;
+                color: #555555;
+                border-radius: 4px;
+                background-color: #eeeeee;
+                border: 1px solid #cccccc75;
+            }
+        </style>
+
+        <div style=" padding-left: 25px; font-family: var(--fontFamilyBase); color: #9d9d9d; ">
+            Organismo: <input id="organismoDefinido" class="organismoprogramatittle" type="text"  disabled /> 
+            Programa: <input id="programaDefinido" class="organismoprogramatittle" type="text" value="@programa"  disabled />
+        </div>
+    </div>
+
+    <form role="form" id="form-uploadPlanilla" method="POST" enctype="multipart/form-data" asp-action="UploadFile">
+
+        <div class="panel-heading">
+
+            <div class="" style="width: 100%;">
+
+                <div class="container-fluid filtro-box" >
+
+
+                    <div>
+
+                        <div style="width: 100%;">
+                            <label class="labelFiltro">Proveedor</label>
+
+                            <div style="display:flex; align-items:center; gap:12px;">
+
+                                <input id="_rutProveedorCarga"
+                                       name="_rutProveedorCarga"
+                                       class="form-control"
+                                       type="text"
+                                       style="width:140px;" />
+
+                                <select id="_nombreProveedorCarga"
+                                        name="_nombreProveedorCarga"
+                                        class="form-control select2"
+                                        style="flex:1;">
+                                </select>
+                                <input id="_dspNombreProveedor" class="form-control" type="hidden" style="width: auto;" />
+
+                                <label for="chkFiltroPeriodo">Incluir periodo de carga</label>
+
+                                <input type="checkbox" id="chkFiltroPeriodo" />
+                                <input id="btnPeriodoCarga" class="form-control" type="month" style=" width: max-content;" />
+
+
+                            </div>
+                        </div>
+
+                        <div class="field-error"></div>
+
+                    </div>
+
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="panel-body">
+
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+
+                    @{
+                        string formatoFecha = "yyyy-MM-dd";
+                        //string formatoHora = "HH:mm:ss";
+
+                        var añoFechaActualFiltro = DateTime.Now.Year.ToString().PadLeft(2, '0');
+                        var mesFechaActualFiltro = DateTime.Now.Month.ToString().PadLeft(2, '0');
+                        //var horaActualFiltroVentas = DateTime.Now.ToString(formatoHora);
+
+                        var firstDateOfMonth = Convert.ToDateTime("01-" + mesFechaActualFiltro + "-" + añoFechaActualFiltro).ToString(formatoFecha);
+                        var dayNowOfMonth = DateTime.Now.ToString(formatoFecha);
+
+                        //var lastDateOfMonth = DateTime.Now.AddMonths(1).ToString(formatoFecha);
+
+                        //string _venta_formatdate = "yyyy-MM-dd";
+                        //var _venta_dateNow = DateTime.Now.ToString(_venta_formatdate);
+
+                    }
+
+                    <div class="form-group">
+                        <div class="row">
+                            <br />
+                            <small class="body-xs">El archivo debe tener formato XLS, XLSX o CSV.</small>
+                            <input id="file-upload" type="file" name="archivoExcel" accept="xmls/xmls" class="form-control" style="height: 50px !important; align-content: center; font-weight: bold;" />
+                            <button id="btnFileUploadPlanilla" type="submit" class="btn btn-primary" style="width: 100%; margin-top: 5px;">Cargar </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-6 text-start"><span id="nombreFile" class="body-xs bold"></span></div>
+                        </div>
+                    </div>
+
+                    @*<div class="form-group">
+                        <div class="row">
+
+                            <div class="accion_cargar_mensaje" style="text-align: center; color: #dba8a8; font-size: large;" hidden></div>
+
+                        </div>
+                    </div>*@
+
+
+
+
+
+
+
+
+                    <!-- RESUMEN CARGA -->
+
+
+                    <div id="resumenCarga" class="mt-3 d-none">
+                        <h5 class="fw-bold text-primary mb-2">Resumen del proceso de carga</h5>
+
+                        <ul class="list-group mb-3">
+                            <li class="list-group-item list-group-item-heading alert-info d-flex justify-content-between" style="background-color:aliceblue;">
+                                <span>Total de filas leídas:</span>
+                                <strong id="resumeCountFacturas"></strong>
+                            </li>
+
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Filas sin Factura:</span>
+                                <strong id="resume_count_filasSinFactura"></strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Filas que pertenecen a otro Proveedor:</span>
+                                <strong id="resume_count_filasOtroProveedor"></strong>
+                            </li>
+
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Filas que están fuera del periodo de carga:</span>
+                                <strong id="resume_count_filasFueraDelPeriodo"></strong>
+                            </li>
+
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Filas cuyo canal no pertenece al programa:</span>
+                                <strong id="resume_count_filasOtroCanal"></strong>
+                            </li>
+
+                            <li class="list-group-item list-group-item-warning d-flex justify-content-between">
+                                <span>Total rechazadas:</span>
+                                <strong id="resumeCountRechazos"></strong>
+                            </li>
+
+                            <li class="list-group-item list-group-item-heading alert-info d-flex justify-content-between" style="background-color:aliceblue;">
+                                <span>Total de filas Aceptadas:</span>
+                                <strong id="resumeCountFacturasAceptadas"></strong>
+                            </li>
+
+                        </ul>
+                    </div>
+
+
+                    <!-- FIN RESUMEN CARGA -->
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="panel-footer" style="text-align: left;">
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- PANEL Consolidar -->
+<div class="panel panel-primary">
+
+    <form role="form" id="form-consolidar" method="POST" enctype="multipart/form-data">
+
+        <div class="panel-heading">
+            <strong>Gestión de los Expedientes - despliegue de datos en carga temporal, usted debe consolidar</strong>
+        </div>
+
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="file-upload" class="btn btn-lg btn-secondary secondario">
+                    Contenido en Archivo Temporal
+                </label>
+            </div>
+
+            @Html.Partial("Tablas/_Tablas", new pnacpacam.Models.Seleccion { item = "zdis022" })
+
+        </div>
+
+        <div class="panel-footer" style="text-align: right;">
+            <div class="accion_consolidar_mensaje" style="color: chocolate; font-size: large; display: inline-flex;" hidden></div>
+            <button id="btnConsolidaCarga" type="submit" class="btn btn-primary" style="width: 15%;">Consolidar</button>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+
+            </div>
+        </div>
+
+    </form>
+</div>
+<!-- FIN PANEL Consolidar -->

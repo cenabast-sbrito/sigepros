@@ -1,3 +1,17 @@
+/* Variables globales de diseño */
+:root {
+    --colorNeutralForeground2: #424242;
+    --fontFamilyBase: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+    --fontSizeBase400: 16px;
+    --fontSizeSmall: .9rem;
+    --fontSizeMedium: 1rem;
+    --fontSizeLarge: 1.2rem;
+    --fontSizeXLarge: 1.4rem;
+    --colorNeutralTexto: #888888;
+    --colorNeutralStroke1: #d1d1d1;
+    --colorNeutralStroke1Pressed: #b3b3b3;
+}
+
 body {
     padding-top: 50px;
     padding-bottom: 100px;
@@ -5,7 +19,7 @@ body {
     background-size: 100%;
     font-size: 14px;
     /*font-weight: bold;*/
-    font-family: 'Open Sans', sans-serif;
+    /*font-family: 'Open Sans', sans-serif;*/
     overflow-x: hidden;
     overflow-y: scroll;
 }
@@ -15,9 +29,9 @@ h1, .h1, h2, .h2, h3, .h3 {
 }
 
 .border-left-title {
-    color: #337ab7;
-    border: 1px solid #337ab7;
-    border-left: 8px solid #337ab7;
+    color: #0d47a1;
+    border: 1px solid #0d47a1;
+    border-left: 8px solid #0d47a1;
     border-radius: 4px;
     padding: 10px;
     padding-left: 5px;
@@ -61,33 +75,33 @@ table.nowrap {
 /*CUSTOM NAV-TABS */
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
     color: #ece0e0;
-    background-color: #337ab7;
+    background-color: #0d47a1;
     border: 1px solid #17609e;
 }
 
 .nav-tabs {
-    border-bottom: 1px solid #337ab7;
+    border-bottom: 1px solid #0d47a1;
 }
 
     .nav-tabs > li > a:hover {
-        border-color: #337ab7 #337ab7 #ddd;
+        border-color: #0d47a1 #0d47a1 #ddd;
     }
 /***************************/
 .table-blue {
-    background-color: #337AB7;
+    background-color: #0d47a1;
     color: #fff;
 }
 
 .table-border-blue {
-    border: 1px solid #337AB7;
+    border: 1px solid #0d47a1;
 }
 
     .table-border-blue > tbody > tr > td {
-        border: 1px solid #337AB7;
+        border: 1px solid #0d47a1;
     }
 
     .table-border-blue > thead > tr > th {
-        border: 1px solid #337AB7;
+        border: 1px solid #0d47a1;
     }
 
 .form-venta {
@@ -101,7 +115,7 @@ table.nowrap {
 }
 
 hr {
-    border-top: 2px solid #337AB7;
+    border-top: 2px solid #0d47a1;
 }
 
 img .text-middle {
@@ -152,22 +166,22 @@ img .text-left {
 
 .navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
     color: #fff;
-    background-color: #337ab7;
+    background-color: #0d47a1;
 }
 
 .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
     color: #fff;
-    background-color: #337ab7;
+    background-color: #0d47a1;
 }
 
 .navbar-default .navbar-nav > li > a {
-    color: #337ab7;
+    color: #0d47a1;
 }
 
     .navbar-default .navbar-nav > li > a:hover {
-        color: #337ab7;
+        color: #0d47a1;
         background-color: #fff;
-        border-bottom: 5px solid #337ab7;
+        border-bottom: 5px solid #0d47a1;
         /*border-bottom-left-radius: 20px;*/
     }
 
@@ -185,7 +199,7 @@ img .text-left {
     .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
         color: #fff;
         text-decoration: none;
-        background-color: #337AB7;
+        background-color: #0d47a1;
     }
 
     .dropdown-menu > li:last-child > a {
@@ -193,12 +207,12 @@ img .text-left {
     }
 
     .dropdown-menu > li > a {
-        color: #337AB7;
+        color: #0d47a1;
     }
 
 .panel-default > .panel-heading {
     color: #fff;
-    background-color: #337AB7;
+    background-color: #0d47a1;
     border: 1px solid #fff;
 }
 
@@ -213,7 +227,7 @@ img .text-left {
 }
 
 a.list-group-item:hover {
-    background-color: #337AB7;
+    background-color: #0d47a1;
     color: #fff;
 }
 
@@ -222,7 +236,7 @@ a.list-group-item:hover {
 }
 
 .size-xs {
-    font-size: 11;
+    font-size: 11px;
 }
 
 .position-login {
@@ -458,7 +472,7 @@ tspan {
 
 .well {
     margin-top: 10px;
-    border: 1px solid #337ab7;
+    border: 1px solid #0d47a1;
 }
 
 /**CARD**/
@@ -940,7 +954,7 @@ footer {
     }
 
     .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
-        color: #337AB7;
+        color: #0d47a1;
         background-color: #fff;
     }
 
@@ -960,3 +974,554 @@ footer {
 
 
 
+
+
+
+
+
+
+
+
+.botonAzul {
+    color:white;
+    display: flex;
+    padding: 0.6rem 1.2rem;
+    background-color: #4A90E2; /* Azul elegante */
+    border: none;
+    cursor: pointer;
+}
+
+    .botonAzul:hover {
+        background-color: #3b7dc4;
+        transform: translateY(-1px);
+    }
+
+    .botonAzul:active {
+        background-color: #3569a5;
+        transform: scale(0.98);
+    }
+
+    .botonAzul:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        color: #666;
+    }
+
+.botonCyan {
+    color: white;
+    display: flex;
+    padding: 0.6rem 1.2rem;
+    background-color: #9ebed9;
+    border: none;
+    cursor: pointer;
+}
+
+    .botonCyan:hover {
+        background-color: #99cbf5;
+        transform: translateY(-1px);
+    }
+
+    .botonCyan:active {
+        background-color: #3569a5;
+        transform: scale(0.98);
+    }
+
+    .botonCyan:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        color: #666;
+    }
+
+.botonVerde {
+    color: white;
+    display: flex;
+    padding: 0.6rem 1.2rem;
+    background-color: #5cb85c; 
+    border: none;
+    cursor: pointer;
+}
+
+    .botonVerde:hover {
+        background-color: #6cc36c;
+        transform: translateY(-1px);
+    }
+
+    .botonVerde:active {
+        background-color: #3569a5;
+        transform: scale(0.98);
+    }
+
+    .botonVerde:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        color: #666;
+    }
+
+
+
+.botonInfo {
+    color: #555;
+    display: flex;
+    padding: .6rem 1.2rem;
+    background-color: #eee;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    font-style: italic;
+}
+
+
+.labelFiltro {
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #555;
+}
+
+.inputFiltro {
+    font-size: 14px;
+    font-weight: 400;
+    color: #555;
+    /*border: 1px solid #ccc;*/
+}
+
+.panel-heading {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filtro {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px; /* Ajusta según tu diseño */
+    flex: 1 1 auto;
+}
+
+/*.inputFiltro {
+    display: flex;*/
+   /* flex-wrap: wrap;*/
+    /*gap: 0.5rem;
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.resumenCarga{
+    font-size: var(--fontSizeBase400) !important;
+    font-family: Segoe Sans, var(--fontFamilyBase);
+    color: var(--colorNeutralForeground2);
+}
+
+
+
+
+
+/* ===============================
+   DATATABLE APP
+================================ */
+
+.table-datatable-app {
+    background-color: #ffffff;
+    border-color: rgba(0, 97, 170, 0.25) !important;
+    /*font-size: 0.9rem;*/
+}
+
+/* ===============================
+   HEADER
+================================ */
+
+.thead-app th {
+    background-color: #005b9f;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    border-color: rgba(255, 255, 255, 0.25);
+    padding: 12px 10px;
+    white-space: nowrap;
+}
+
+/* ===============================
+   CELDAS
+================================ */
+
+.table-datatable-app td {
+    vertical-align: middle !important;
+    color: #1f2d3d;
+    border-color: #dee2e6;
+    padding: 10px 12px;
+}
+
+/* ===============================
+   STRIPED SUAVE
+================================ */
+
+.table-datatable-app.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #f7faff;
+}
+
+/* ===============================
+   HOVER SUAVE
+================================ */
+
+.table-datatable-app.table-hover > tbody > tr:hover {
+    background-color: rgba(0, 97, 170, 0.08);
+    transition: background-color 0.2s ease;
+}
+
+/* ===============================
+   ICONOS DE ACCIÓN
+================================ */
+
+.table-datatable-app .action-icon {
+    font-size: 26px;
+    cursor: pointer;
+    margin: 0 4px;
+    transition: transform .15s ease, opacity .15s ease;
+}
+
+    .table-datatable-app .action-icon:hover {
+        transform: scale(1.15);
+        opacity: 0.9;
+    }
+
+/* Colores semánticos */
+.icon-create {
+    color: #1976d2 !important;
+}
+/* verde */
+.icon-view {
+    color: #1976d2 !important;
+}
+/* azul */
+.icon-guides {
+    color: #1976d2 !important;
+}
+/* violeta */
+.icon-file {
+    color: #1976d2 !important;
+}
+/* naranja */
+.icon-disabled {
+    color: #adb5bd !important;
+    cursor: not-allowed !important;
+}
+
+/* ===============================
+   TEXTO CENTRADO EN COLUMNAS ACCIÓN
+================================ */
+
+.table-datatable-app td.text-center {
+    white-space: nowrap;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* STYLE LAYOUT */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    display: grid;
+    place-items: center;
+    z-index: 3000;
+}
+
+.overlay-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 18px 20px;
+    min-width: 280px;
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+    text-align: center;
+}
+
+.spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+/* FIN STYLE LAYOUT*/
+
+
+
+/* STYLE ADMIN LAYOUT */
+
+.autocomplete {
+    /*the container must be positioned relative:*/
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+    .autocomplete-items div {
+        padding: 10px;
+        cursor: pointer;
+        background-color: #fff;
+        border-bottom: 1px solid #d4d4d4;
+    }
+
+        .autocomplete-items div:hover {
+            /*when hovering an item:*/
+            background-color: #e9e9e9;
+        }
+
+.autocomplete-active {
+    /*when navigating through the items using the arrow keys:*/
+    background-color: DodgerBlue !important;
+    color: #ffffff;
+}
+
+button.close {
+    font-size: xx-large !important;
+    color: white !important;
+    opacity: 1 !important;
+    padding: 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.loader_Tablas {
+    text-align: center;
+    color: #dba8a8;
+    font-size: large;
+    font-family: fantasy;
+}
+
+/* FIN STYLE ADMIN LAYOUT */
+
+
+/* TOAST LAYOUT */
+
+.toast-container {
+    position: fixed;
+    top: 60px;
+    right: 60px;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    min-width: 300px;
+    max-width: 380px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    color: #ffffff;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all .3s ease;
+    font-size: 15px;
+}
+
+    .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+.toast-info {
+    background: #005b9f;
+}
+
+.toast-success {
+    background: #1b7f4d;
+}
+
+.toast-error {
+    background: #b9342b;
+}
+
+.btn .spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+    animation: spin .6s linear infinite;
+}
+
+/* FIN TOAST LAYOUT */
+
+
+
+
+
+/* SOLO para selects que usan Select2 */
+
+select.select2 {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none;
+}
+select.Select2_facturaLista {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none;
+}
+
+
+
+/* FIN DEL FIJADO DE ESTILO AL SELECT2 */
+
+
+
+
+/* ===============================
+   MODAL INSTITUCIONAL
+=============================== */
+
+.modal-institucional .modal-content {
+    border-radius: 6px;
+    border: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+
+/* Header */
+.modal-institucional .modal-header {
+    background-color: #1976d2;
+    color: #ffffff;
+    border-bottom: none;
+}
+
+.modal-institucional .modal-title {
+    font-weight: 600;
+}
+
+.modal-institucional .close {
+    color: #ffffff;
+    opacity: .9;
+}
+
+/* Body */
+.modal-institucional .modal-body {
+    padding: 20px;
+    color: #1f2937;
+}
+
+/* Estados */
+.estado {
+    margin-bottom: 12px;
+}
+
+    .estado input {
+        width: 100%;
+        border: none;
+        background-color: transparent;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+.estado-ok input {
+    color: #2e7d32;
+}
+
+.estado-nook input {
+    color: #c62828;
+}
+
+/* Texto explicativo */
+.texto-explicativo {
+    margin: 16px 0;
+    color: #374151;
+    font-size: 14px;
+}
+
+/* Input observación */
+.modal-institucional .form-control {
+    border-radius: 4px;
+    border: 1px solid #cfd8dc;
+}
+
+    .modal-institucional .form-control:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 2px rgba(25,118,210,.25);
+    }
+
+/* Mensaje de observaciones */
+.mensaje-observacion {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #c62828;
+}
+
+/* Footer */
+.modal-institucional .modal-footer {
+    background-color: #f5f7fa;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Botones */
+.modal-institucional .btn-primary {
+    background-color: #1976d2;
+    border-color: #1976d2;
+}
+
+    .modal-institucional .btn-primary:hover {
+        background-color: #1565c0;
+    }
+
+.modal-institucional .btn-outline-secondary {
+    color: #1976d2;
+    border-color: #1976d2;
+}
+
+    .modal-institucional .btn-outline-secondary:hover {
+        background-color: #e3f2fd;
+    }

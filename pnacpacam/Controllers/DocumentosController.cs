@@ -1,167 +1,344 @@
-﻿using iTextSharp.text;
-using iTextSharp.text.pdf;
+﻿
 using pnacpacam.Models;
+using PNacPacam;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Web.Mvc;
-
 using System.Configuration;
-
+using System.IO;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Security;
+using static PNacPacam.Despachos;
 
 namespace pnacpacam.Controllers
 {
     [Authorize]
-    [SessionExpire]
     [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]
     public class DocumentosController : Controller
     {
-        public JsonResult GetTipoDocumentos()
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            TipoDocumento doc = new TipoDocumento();
+            // 1️⃣ Validar sesión ASP.NET
+            if (Session == null || Session.IsNewSession)
+            {
+                CerrarSesion(filterContext);
+                return;
+            }
 
-            var listaDocumentos = doc.GetTipoDocumentos();
+            // 2️⃣ Validar Forms Authentication
+            if (!Request.IsAuthenticated || User == null || !User.Identity.IsAuthenticated)
+            {
+                CerrarSesion(filterContext);
+                return;
+            }
 
-            return Json(listaDocumentos, JsonRequestBehavior.AllowGet);
-
-        }
-        
-        public JsonResult getDocumentos() {
-
-            Documento cdc = new Documento();
-            var listCdc = cdc.getDocumentos();
-
-            return Json(listCdc, JsonRequestBehavior.AllowGet);
-
-        }
-        
-        public JsonResult GetReferencias()
-        {
-            Referencia doc = new Referencia();
-
-            var listaReferencias = doc.getReferencias();
-
-            return Json(listaReferencias, JsonRequestBehavior.AllowGet);
-
+            base.OnActionExecuting(filterContext);
         }
 
-        // Obtener la lista de los inventarios creados  
-        /*
-        public JsonResult getListInventario()
+        private void CerrarSesion(ActionExecutingContext filterContext)
         {
+            // Limpiar sesión
+            Session.Clear();
+            Session.Abandon();
 
-            modeloInventario cdc = new modeloInventario();
-            var listCdc = cdc.getListInventario();
+            // Cerrar autenticación
+            FormsAuthentication.SignOut();
 
-            return Json(listCdc, JsonRequestBehavior.AllowGet);
+            // Eliminar cookie
+            if (Request.Cookies[FormsAuthentication.FormsCookieName] != null)
+            {
+                var cookie = new HttpCookie(FormsAuthentication.FormsCookieName)
+                {
+                    Expires = DateTime.Now.AddDays(-1)
+                };
+                Response.Cookies.Add(cookie);
+            }
 
+            // Redirección a Login
+            filterContext.Result = RedirectToAction("Index", "Login");
         }
-        
-        */
-        /*
-        public JsonResult getInventario(int IdInventario)
+
+        [HttpGet]
+        public ActionResult Upload()
         {
-            modeloInventario inventario = new modeloInventario();
-            inventario = inventario.getInventario(IdInventario);
-            return Json(inventario, JsonRequestBehavior.AllowGet);
+            return View();
         }
-        */
-        /*
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public JsonResult SetInventario(modeloInventario inventario)
+        // POST: Documentos/SubirDocumento: sube un documento adjunto (guia, nota credito o debito) a la carpeta del proveedor en el servidor PNAC-PACAM-PNI
+
+
+        public JsonResult subirDocumento(HttpPostedFileBase documentoUpload, string _rutProveedorUpload, string _facturaLista, string _tipoDocumento)
         {
+            string Mensaje = string.Empty;
+            string rutaDestino = string.Empty;
+            string urlBaseDocumentos = string.Empty;
+            string nombreArchivo = string.Empty;
+
             try
             {
-                if (Session["Rut"] != null)
+                // Requisito: factura debe existir
+                if (Factura._existeFacturaProveedor(_rutProveedorUpload, _facturaLista) <= 0)
+                    return Json(new { message = "No ha sido hallada la factura del proveedor; es requisito obligatorio para subir el documento.", status = false });
+
+                if (documentoUpload == null || documentoUpload.ContentLength <= 0)
+                    return Json(new { message = "Debe seleccionar un archivo.", status = false });
+
+                // Validación de extensión y content-type (defensa en profundidad)
+                var extension = Path.GetExtension(documentoUpload.FileName);
+                if (!string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase))
+                    return Json(new { message = "Solo se permiten archivos PDF (extensión .pdf).", status = false });
+
+                // Algunos navegadores usan application/octet-stream; validamos lista permitida
+                var contentTypesPermitidos = new[] { "application/pdf", "application/octet-stream" };
+                if (!contentTypesPermitidos.Contains(documentoUpload.ContentType, StringComparer.OrdinalIgnoreCase))
+                    return Json(new { message = "Tipo de contenido no permitido. Solo PDF.", status = false });
+
+                // Tamaño máximo opcional (en MB) desde config (por ejemplo 20MB)
+                ////            int maxMb = 20;
+                ////            int.TryParse(ConfigurationManager.AppSettings["MaxUploadMB"], out maxMb);
+                ////            long maxBytes = maxMb * 1024L * 1024L;
+                ////            if (documentoUpload.ContentLength > maxBytes)
+                ////                return Json(new { message = $"El archivo supera el tamaño máximo permitido de {maxMb} MB.", status = false });
+
+                // Resolver ruta base por ambiente y tipo
+                string ambiente = ConfigurationManager.AppSettings["Ambiente"];
+                if (_tipoDocumento != "FC") // guía/nota crédito/nota débito
                 {
-                    inventario.RutCreador = Session["Rut"].ToString();
+                    urlBaseDocumentos = (ambiente == "Production")
+                        ? ConfigurationManager.AppSettings["urlBaseIODocumentos"].ToString() + _rutProveedorUpload
+                        : ConfigurationManager.AppSettings["urlBaseIODocumentos_TEST"].ToString() + _rutProveedorUpload;
+                }
+                else // factura de comisión
+                {
+                    urlBaseDocumentos = (ambiente == "Production")
+                        ? ConfigurationManager.AppSettings["urlBaseIOFacturaComision"].ToString()
+                        : ConfigurationManager.AppSettings["urlBaseIOFacturaComision_TEST"].ToString();
+                }
+
+                // Asegurar directorio destino
+                rutaDestino = urlBaseDocumentos;
+                if (!Directory.Exists(rutaDestino))
+                    Directory.CreateDirectory(rutaDestino);
+
+                // Sanitizar nombre base original
+                string nombreOriginal = Path.GetFileName(documentoUpload.FileName);
+                nombreOriginal = string.IsNullOrWhiteSpace(nombreOriginal) ? "documento.pdf" : nombreOriginal;
+
+                // Remover caracteres inválidos
+                foreach (var c in Path.GetInvalidFileNameChars())
+                    nombreOriginal = nombreOriginal.Replace(c, '_');
+
+                // Definir nombre objetivo
+                if (_tipoDocumento != "FC")
+                {
+                    // Estructura: {TIPO}_{FACTURA}_{original}.pdf
+                    nombreArchivo = $"{_tipoDocumento}_{_facturaLista}_{nombreOriginal}";
                 }
                 else
                 {
-                    return Json(new { message = "Su sesion ha expirado. Vuelva a Conectarse", status = false });
+                    // Estructura para FC: prefijo + rut + _ + factura + .pdf
+                    string prefijo = ConfigurationManager.AppSettings["prefijoNombreComision"]?.ToString() ?? "FC_";
+                    nombreArchivo = $"{prefijo}{_rutProveedorUpload}_{_facturaLista}.pdf";
                 }
-                if (inventario.setInventario(inventario) > 0)
+
+                string rutaCompleta = Path.Combine(rutaDestino, nombreArchivo);
+
+                // Guardar con sobrescritura:
+                // FileMode.Create => crea si no existe o sobrescribe si existe
+                using (var fileStream = new FileStream(rutaCompleta, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
-                    return Json(new { message = "La cabecera del Inventario ha sido modificado exitosamente.", status = true });
+                    documentoUpload.InputStream.CopyTo(fileStream);
+                }
+
+                Mensaje = $"Archivo subido correctamente a: {rutaCompleta}";
+                return Json(new { message = Mensaje, status = true });
+            }
+            catch (Exception ex)
+            {
+                Mensaje = $"Error al subir el archivo: {ex.Message}";
+                return Json(new { message = Mensaje, status = false });
+            }
+        }
+        public JsonResult subirDocumentoOLD(HttpPostedFileBase documentoUpload, string _rutProveedorUpload, string _facturaLista, string _tipoDocumento)
+        {
+            string Mensaje = string.Empty;
+            string rutaDestino = string.Empty;
+            var urlBaseDocumentosAdjuntos = "";
+            var urlBaseFacturaComision = "";
+            string urlBaseDocumentos = string.Empty;
+            string nombreArchivo = string.Empty;
+            try
+            {
+
+                Despachos despachos = null;
+
+                // requisito de upload de documento es que exista la factura en la BD
+                if (Factura._existeFacturaProveedor(_rutProveedorUpload, _facturaLista) <= 0) return Json(new { message = "No ha sido hallada la factura del proveedor, la factura es requisito obligatorio para subir el documento.", status = false });
+
+                string ambiente = ConfigurationManager.AppSettings["Ambiente"];
+                if (_tipoDocumento != "FC") // es guia, cota credito o debito
+                {
+                    urlBaseDocumentos = (ambiente == "Production") ? ConfigurationManager.AppSettings["urlBaseIODocumentos"].ToString() + _rutProveedorUpload :
+                        ConfigurationManager.AppSettings["urlBaseIODocumentos_TEST"].ToString() + _rutProveedorUpload;
+                }
+                else // es factura de comision
+                {
+                    urlBaseDocumentos = (ambiente == "Production") ? ConfigurationManager.AppSettings["urlBaseIOFacturaComision"].ToString() : // + _rutProveedorUpload :
+                       ConfigurationManager.AppSettings["urlBaseIOFacturaComision_TEST"].ToString(); // + _rutProveedorUpload;
+                }
+
+                if (documentoUpload != null && documentoUpload.ContentLength > 0)
+                {
+                    // Validar que sea un PDF
+                    var extension = Path.GetExtension(documentoUpload.FileName);
+                    if (!string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Json(new { message = "Solo se permiten archivos PDF.", status = false });
+
+                    }
+                    // Ruta donde guardar el archivo 
+                    rutaDestino = urlBaseDocumentos;
+
+                    // solo para guias, notas de credito o debito: Crear el directorio si no existe
+                    if (_tipoDocumento != "FC") // es guia, nota credito o debito
+                    {
+                        if (!Directory.Exists(rutaDestino))
+                        {
+                            Directory.CreateDirectory(rutaDestino);
+                        }
+                    }
+
+                    if (_tipoDocumento != "FC")
+                        nombreArchivo = _tipoDocumento + "_" + _facturaLista + "_" + Path.GetFileName(documentoUpload.FileName);
+                    else
+                        nombreArchivo = ConfigurationManager.AppSettings["prefijoNombreComision"].ToString() + _rutProveedorUpload + "_" + _facturaLista + ".pdf";
+
+                    string rutaCompleta = Path.Combine(rutaDestino, nombreArchivo);
+
+                    // Guardar archivo
+                    documentoUpload.SaveAs(rutaCompleta);
+
+                    Mensaje = $"Archivo subido correctamente a: {rutaCompleta}";
+                    return Json(new { message = Mensaje, status = true });
                 }
                 else
                 {
-                    return Json(new { message = "Error : La cabecera del Inventario no ha podido ser modificada. ", status = false });
+                    Mensaje = "Debe seleccionar un archivo.";
+                    return Json(new { message = Mensaje, status = false });
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { message = "Error : al intentar modificar la cabecera del Inventario. Descripcion : " + ex.Message + " " + ex.InnerException.Message, status = false });
+                Mensaje = $"Error al subir el archivo: {ex.Message}";
+                return Json(new { message = Mensaje, status = true });
             }
         }
-        */
-        
-      /*  
-        
-        public JsonResult PutInventario(modeloInventario inventario)
+
+        [HttpGet]
+        public JsonResult getDocumentosAdjuntos(string rut, string factura)
+        {
+
+            Movimiento doc = new Movimiento();
+            if (doc.ExisteDocumentoAdjunto(rut, factura) != 1) return Json(new { state = false, message = "Sin Documentos" }, JsonRequestBehavior.AllowGet);
+
+            try
+            {
+
+
+                string ambiente = ConfigurationManager.AppSettings["Ambiente"];
+
+                var urlBase = (ambiente == "Production") ? ConfigurationManager.AppSettings["urlBaseIODocumentos"].ToString() + rut :
+                    ConfigurationManager.AppSettings["urlBaseIODocumentos_TEST"].ToString() + rut;
+
+                var urlDA = (ambiente == "Production") ? ConfigurationManager.AppSettings["urlBaseLinkDocumentos"].ToString() :
+                   ConfigurationManager.AppSettings["urlBaseLinkDocumentos_TEST"].ToString();
+
+                string folder = urlBase;
+                Archivo archivo = new Archivo();
+                List<Archivo> archivos = new List<Archivo>();
+
+                string fileFind = "???" + factura + "*.pdf";
+
+                var archivosLista = Directory.GetFiles(folder, fileFind)
+                    .Select(Path.GetFileName)
+                    .OrderBy(f => f)
+                    .Select(f => new Archivo { Nombre = f })
+                    .ToList();
+
+                var modelo = new Archivos
+                {
+                    Url = urlBase + int.Parse(rut) + "/procesados/",
+                    UrlDA = urlDA + int.Parse(rut) + "/",
+                    Nombres = archivosLista
+                };
+
+                return Json(new { state = true, archivos = modelo }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception e)
+            {
+                return Json(new { state = false, message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+        [HttpGet]
+        public JsonResult getFacturaComision(string rut, string factura)
         {
             try
             {
-                if (Session["Rut"] != null)
-                {
-                    inventario.RutCreador = Session["Rut"].ToString();
-                }
-                else
-                {
-                    return Json(new { message = "Su sesion ha expirado. Vuelva a Conectarse", status = false });
-                }
-                if (inventario.putInventario(inventario) > 0)
-                {
-                    return Json(new { message = "La cabecera del Inventario ha sido modificado exitosamente.", status = true });
-                }
-                else
-                {
-                    return Json(new { message = "Error : La cabecera del Inventario no ha podido ser modificada. ", status = false });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { message = "Error : al intentar modificar la cabecera del Inventario. Descripcion : " + ex.Message + " " + ex.InnerException.Message, status = false });
-            }
-        }
-    */
-     /*   
-        public int GetSession()
-        {
-            if (Session["Rut"] != null)
-            {
 
-                return 1;
+                string ambiente = ConfigurationManager.AppSettings["Ambiente"];
+
+                var urlBase = (ambiente == "Production") ? ConfigurationManager.AppSettings["urlBaseIOFacturaComision"].ToString() + rut :
+                    ConfigurationManager.AppSettings["urlBaseIOFacturaComision_TEST"].ToString() + rut;
+
+
+                string folder = urlBase;
+                string nombreArchivo = ConfigurationManager.AppSettings["prefijoNombreComision"].ToString() + rut + "_" + factura + ".pdf";
+                string rutaCompleta = Path.Combine(urlBase, nombreArchivo);
+
+
+                Movimiento doc = new Movimiento();
+                if (doc.existeFacturaComision(rut, factura) == 1) return Json(new { state = true, archivo = nombreArchivo }, JsonRequestBehavior.AllowGet);
+                else return Json(new { state = false, archivo = "" }, JsonRequestBehavior.AllowGet);
+
+                //    Archivo archivo = new Archivo();
+                //List<Archivo> archivos = new List<Archivo>();
+
+                //string fileFind = "???" + factura + "*.pdf";
+
+                //var archivosLista = Directory.GetFiles(folder, fileFind)
+                //    .Select(Path.GetFileName)
+                //    .OrderBy(f => f)
+                //    .Select(f => new Archivo { Nombre = f })
+                //    .ToList();
+
+                //var modelo = new Archivos
+                //{
+                //    Url = urlBase + int.Parse(rut) + "/procesados/",
+                //    Nombres = archivosLista
+                //};
+
 
             }
-            else
+            catch (Exception e)
             {
-                return 0;
+                return Json(new { state = false, message = e.Message }, JsonRequestBehavior.AllowGet);
             }
+
         }
-        public string GetStringConexion()
-        {
-            if (Session["Rut"] != null)
-            {
-                return ConfigurationManager.AppSettings["StringConexion"].ToString();
-            }
-            else
-            {
-                return "";
-            }
-        }
-        public string GetPeriodo()
-        {
-            if (Session["Rut"] != null)
-            {
-                return Session["Periodo"].ToString();
-            }
-            else
-            {
-                return "";
-            }
-        }
-    */
+
+        //public Boolean existeDocumentoAdjunto(string rutProveedor, string factura)
+        //{
+        //    return true;
+        //    Movimiento doc = new Movimiento();
+        //    if (doc.existeFacturaComision(rutProveedor, factura) == 1)
+        //    {
+        //        return true;
+        //    }
+        //    return false;
+
+        //}
+
     }
 }

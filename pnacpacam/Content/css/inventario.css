@@ -1,4 +1,10 @@
-﻿.tablas {
+﻿.loader_Tablas {
+    text-align: center;
+    color: #dba8a8;
+    font-size: large;
+    font-family: fantasy;
+}
+.tablas {
     background-color: #e3e3e3;
     padding: 10px;
 }
@@ -16,7 +22,7 @@
     vertical-align: middle !important;
     text-align: left !Important;
     font-size: medium;
-    background-color: #337ab7;
+    background-color: #0d47a1;
     color: white;
     font-family: sans-serif;
 }

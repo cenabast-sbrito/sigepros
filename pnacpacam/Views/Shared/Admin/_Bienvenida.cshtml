@@ -1,1 +1,26 @@
-﻿
+﻿@*<div id="_imagenPNacPacam" style=" z-index: -9999; display: flex; align-items: center; justify-content: center; position: fixed; top: 0; right: 0; bottom: 0; left: 0; margin: auto; width: 100%;">
+        <img src="~/Content/img/PROGRAMA ALIMENTARIO.png" />
+    </div>*@
+
+@*<div id="_imagenPNacPacam" style=" z-index: -9999; margin: auto; width: 100%;">
+    <img src="~/Content/img/PROGRAMA ALIMENTARIO.png" />
+</div>*@
+
+
+@{
+    string imagen = "";
+
+    if (User.IsInRole("ADM") || User.IsInRole("MIN"))
+    {
+        imagen = "../Content/img/PNACPACAM.png";
+    }
+    else if (User.IsInRole("ADP") || User.IsInRole("MIP"))
+    {
+        imagen = "../Content/img/PNI2.png";
+    }
+}
+
+<div id="_imagenPNacPacam" style=" z-index: -9999; margin: auto; width: 100%;">
+    <img src="@imagen" />
+</div>
+

@@ -1,0 +1,902 @@
+﻿@model pnacpacam.Models.VariablesEntorno
+
+@{
+    Layout = null;
+}
+@Html.AntiForgeryToken()
+
+
+
+
+<div class="panel panel-primary">
+
+    <div class="row">
+
+        <div class="titulo-principal" style="display:flex; align-items:center;">
+            <h2>Gestión de los Expedientes de Proveedores</h2>
+
+            <p class="panel-body" style="font-size: 1.2rem; margin-left: auto; text-align: right;">
+                <input type="checkbox" id="incluirDatosAdicionales" name="SS" />
+                <label for="incluirDatosAdicionales">
+                    Excluir Datos acerca del Servicio de Salud, Rut del Establecimiento y Destinatario en Datos de Guías
+                    <small>(excluir esta información, disminuye el tiempo de espera al consultar las Guías)</small>
+                </label>
+            </p>
+        </div>
+
+
+    </div>
+
+    <form role="form" id="form-upload" method="POST" enctype="multipart/form-data" asp-action="UploadFile">
+
+        <div class="panel-heading">
+
+            <div class="" style="width: 100%;">
+
+                <div class="">
+
+                    <!-- PANEL FILTROS -->
+                    @Html.Partial("Shared/_Filtro", new pnacpacam.Models.Seleccion { item = "filtroFacturas" })
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </form>
+
+</div>
+
+
+<style>
+
+    /* Contenedor principal de la fila */
+    .modal-body .row.flex-layout {
+        display: flex;
+        height: calc(100vh - 140px); /* ocupa todo el alto útil del modal */
+    }
+
+    /* Panel izquierdo (tablas) */
+    .modal-body .panel-izquierdo {
+        width: 62%;
+        overflow: auto;
+        padding-right: 10px;
+    }
+
+    /* Panel derecho (documentos + iframe) */
+    .modal-body .panel-derecho {
+        width: 38%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Tabla documentos */
+    .panel-derecho .tabla-documentos-container {
+        max-height: 38%;
+        overflow: auto;
+    }
+
+    /* Iframe visor PDF */
+    #iframeGuiaWrapper {
+        flex: 1; /* ocupa TODO el espacio restante */
+        margin-top: 10px;
+    }
+
+    #_guiaPreview {
+        width: 100%;
+        height: 100%;
+        border: 2px solid #4e46e5;
+    }
+
+    .row {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    /* estilo ícono observacion */
+
+    .icon-observacion {
+        color: #b35400; /* naranja oscuro */
+        font-size: 20px;
+        margin-left: 6px;
+        cursor: pointer;
+        transition: transform .15s ease, opacity .15s ease;
+    }
+
+        .icon-observacion:hover {
+            transform: scale(1.15);
+            opacity: 0.85;
+        }
+
+    /* estilo del modal */
+
+    .modal-content {
+        height: 100%;
+    }
+
+    .modal-body {
+        height: calc(100% - 110px); /* header + footer */
+        overflow: hidden; /* el scroll lo manejarán los paneles */
+    }
+</style>
+
+<!-- PANEL FACTURAS -->
+
+
+@Html.Partial("Tablas/_Tablas", new pnacpacam.Models.Seleccion { item = "Facturas" })
+
+@*</div>*@
+<!-- FIN PANEL FACTURAS -->
+<!-- MODAL GUIAS -->
+<div class="modal top fade" id="_Factura_Guias" role="dialog" tabindex="-1" aria-labelledby="" data-backdrop="static" style="overflow:auto">
+    <div class="modal-dialog" role="document" style="width: 98vw; max-width: none; height: 98vh; margin: 0;">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetFormExpedienteVer();">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="">Guías</h4>
+            </div>
+            <form id="formVerGuias">
+
+                @Html.AntiForgeryToken()
+
+                <div class="modal-body">
+
+                    <div class="row flex-layout">
+
+                        <!-- IZQUIERDA -->
+                        <div class="panel-izquierdo">
+                            <div class="tablas">
+                                @Html.Partial("Tablas/_Tablas", new pnacpacam.Models.Seleccion { item = "Guias" })
+                            </div>
+                        </div>
+
+                        <!-- DERECHA -->
+                        <div class="panel-derecho">
+
+                            <h3>Documentos del proveedor</h3>
+
+                            <div class="tabla-documentos-container">
+
+                                <div id="spinnerDocumentos" class="text-center table-overlay" style="display:none; padding:20px">
+                                    <i class="fas fa-spinner fa-spin fa-3x"></i>
+                                    <div>Buscando documentos...</div>
+                                </div>
+
+                                <table id="tablaDocumentos" class="tabla-documentos">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Nombre del archivo</th>
+                                            <th>Ver</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                            <!-- VISOR PDF -->
+                            <div id="iframeGuiaWrapper">
+                                <iframe id="_guiaPreview" name="_guiaPreview"></iframe>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="resetFormExpedienteVer();">Salir</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<!-- FIN MODAL GUIAS -->
+<!-- MODAL DOCUMENTOS ADJUNTOS -->
+<div class="modal top fade" id="modal_Documentos_Adjuntos" role="dialog" tabindex="-1" aria-labelledby="" data-backdrop="static" style="overflow:auto">
+    <div class="modal-dialog" role="document" style="width: 98vw; max-width: none; height: 98%; margin: 0;">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetFormDocumentosAdjuntosVer();">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="">Documentos Adjuntos</h4>
+            </div>
+            <form id="formVerDocumentosAdjuntos">
+
+                @Html.AntiForgeryToken()
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="block1">
+                                <div class="tablas">
+
+                                    @Html.Partial("Tablas/_Tablas", new pnacpacam.Models.Seleccion { item = "DocumentosAdjuntos" })
+
+                                </div>
+                            </div>
+                            <div class="block2">
+
+
+                                <style>
+                                    /* Estilos generales de la tabla */
+                                    .tabla-documentos {
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                        margin: 20px 0;
+                                        font-family: "Segoe UI", Arial, sans-serif;
+                                        font-size: 14px;
+                                        color: #333;
+                                    }
+
+                                        /* Encabezados */
+                                        .tabla-documentos thead th {
+                                            background-color: #f5f5f5;
+                                            color: #444;
+                                            text-align: left;
+                                            padding: 10px 15px;
+                                            border-bottom: 2px solid #ddd;
+                                        }
+
+                                        /* Celdas */
+                                        .tabla-documentos td {
+                                            padding: 10px 15px;
+                                            border-bottom: 1px solid #eee;
+                                            vertical-align: middle;
+                                        }
+
+                                        /* Hover para filas */
+                                        .tabla-documentos tbody tr:hover {
+                                            background-color: #fafafa;
+                                        }
+
+                                        /* Columna índice */
+                                        .tabla-documentos td:first-child {
+                                            width: 40px;
+                                            text-align: center;
+                                            color: #666;
+                                        }
+
+                                        /* Ícono de ver */
+                                        .tabla-documentos a i {
+                                            color: #007bff;
+                                            transition: color 0.2s, transform 0.2s;
+                                        }
+
+                                            .tabla-documentos a i:hover {
+                                                color: #0056b3;
+                                                transform: scale(1.1);
+                                            }
+                                </style>
+
+
+                                <!-- style del Spinner -->
+                                <style>
+                                    .box-loading {
+                                        min-height: 120px;
+                                    }
+
+                                    .loading-overlay {
+                                        position: absolute;
+                                        inset: 0;
+                                        background: rgba(255, 255, 255, 0.75);
+                                        display: flex;
+                                        flex-direction: column;
+                                        align-items: center;
+                                        justify-content: center;
+                                        z-index: 10;
+                                        border-radius: 6px;
+                                    }
+
+                                        .loading-overlay i {
+                                            font-size: 2rem;
+                                            color: #0061aa;
+                                            margin-bottom: 6px;
+                                        }
+
+                                        .loading-overlay span {
+                                            font-size: 0.9rem;
+                                            color: #0061aa;
+                                            font-weight: 600;
+                                        }
+                                </style>
+
+                                <div class="box-loading position-relative">
+
+                                    <!-- Spinner -->
+                                    <div class="loading-overlay d-none">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <span>Cargando...</span>
+                                    </div>
+
+                                    <!-- Contenido real -->
+                                    <div class="box-content">
+                                        <!-- aquí va tu tabla, formulario, panel, etc -->
+                                        Contenido del cuadro
+                                    </div>
+
+                                </div>
+
+                                <h3>Documentos del proveedor</h3>
+                                <table id="tablaDocumentosAdjuntos" class="tabla-documentos">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Nombre del archivo #2</th>
+                                            <th>Ver</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Aquí se llenan las filas desde el AJAX -->
+                                    </tbody>
+                                </table>
+
+                                <iframe id="_guiaPreviewDocumentoAdjunto" name="_guiaPreviewDocumentoAdjunto" style="border:2px solid #4e46e5;"></iframe>
+
+
+                                @*<div class="row"><div id="_guiaPedidoCompra"></div><div id="_guiaMaterial"></div></div>
+                                    <div class="row"><iframe id="_guiaPreview" name="_guiaPreview" style="border:2px solid #4e46e5;"></iframe></div>*@
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="resetFormDocumentoAdjuntoVer();">Salir</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<!-- FIN MODAL DOCUMENTOS ADJUNTOS -->
+<!-- MODAL CONFIRMAR ARMADO DE EXPEDIENTE -->
+<div class="modal" id="_Factura_Confirmar_Expediente" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirme armado de expediente</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Usted accederá al módulo de creación de los expedientes</p>
+                <p>
+                    Rut Proveedor : <input type="text" id="_Expediente_rutProveedor" disabled />
+                    Número de Factura: <input type="text" id="_Expediente_nFactura" disabled />
+                </p>
+                <p><div id="_mensajeCreaExpediente"></div></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="_generar-Expediente-Factura">Crear Expediente</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL CONFIRMAR ARMADO DE EXPEDIENTE -->
+
+
+<style>
+    /* Modal casi fullscreen */
+    .modal-factura-comision {
+        width: 98vw;
+        height: 98vh;
+        max-width: none;
+        margin: 1vh auto;
+    }
+
+        /* Layout vertical con flex */
+        .modal-factura-comision .modal-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header y footer se mantienen con su altura natural */
+        .modal-factura-comision .modal-header,
+        .modal-factura-comision .modal-footer {
+            flex: 0 0 auto;
+        }
+
+    /* Body ocupa todo el espacio restante */
+    .modal-body-factura-comision {
+        flex: 1 1 auto;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    /* Iframe ocupa el 100% real */
+    .iframe-factura-comision {
+        width: 100%;
+        height: 100%;
+        border: 2px solid #4e46e5;
+    }
+</style>
+<!-- MODAL VER FACTURA COMISION -->
+<div class="modal fade" id="_Factura_modal-ver-FacturaComision" tabindex="-1" data-backdrop="static">
+    <div class="modal-dialog modal-factura-comision" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+                <h4 class="modal-title" id="modal-ver-facturacomision-titulo">
+                    Factura Comisión
+                </h4>
+            </div>
+
+            <div class="modal-body modal-body-factura-comision">
+                <iframe id="_Factura_ComisionPreviewIFrame"
+                        name="_Factura_ComisionPreviewIFrame"
+                        class="iframe-factura-comision">
+                </iframe>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                    Salir
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- FIN MODAL VER FACTURA COMISION -->
+
+<style>
+
+    /* Modal ocupa casi toda la pantalla */
+    .modal-expediente {
+        width: 98vw;
+        height: 98vh;
+        max-width: none;
+        margin: 1vh auto;
+    }
+
+        /* Modal-content en layout flex vertical */
+        .modal-expediente .modal-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header y footer con tamaño natural */
+        .modal-expediente .modal-header,
+        .modal-expediente .modal-footer {
+            flex: 0 0 auto;
+        }
+
+    /* Body ocupa todo el espacio restante */
+    .modal-body-expediente {
+        flex: 1 1 auto;
+        padding: 0;
+        overflow: hidden; /* evita scroll innecesario */
+    }
+
+    /* Iframe FULL */
+    .iframe-expediente {
+        width: 100%;
+        height: 100%;
+        border: 2px solid #4e46e5;
+    }
+</style>
+<div class="modal fade" id="_Factura_modal-ver-Expediente" tabindex="-1" data-backdrop="static">
+    <div class="modal-dialog modal-expediente" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+                <h4 class="modal-title">Expediente</h4>
+            </div>
+
+            <div class="modal-body modal-body-expediente">
+                <iframe id="_Factura_ExpedientePreviewIFrame"
+                        name="_Factura_ExpedientePreviewIFrame"
+                        class="iframe-expediente">
+                </iframe>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Salir</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL DV PENDIENTES -->
+<div class="modal top fade" id="modal_DVPendientes" role="dialog" tabindex="-1" aria-labelledby="" data-backdrop="static" style="overflow:auto">
+    <div class="modal-dialog" role="document" style="width: 98vw; max-width: none; height: 98%; margin: 0;">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="">Documentos de Venta Pendientes</h4>
+            </div>
+            @*<form id="formVerGuias">*@
+
+            @Html.AntiForgeryToken()
+
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <div class="row">
+
+                        <div class="tablas">
+
+                            @Html.Partial("Tablas/_Tablas", new pnacpacam.Models.Seleccion { item = "DVPendientes" })
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Salir</button>
+            </div>
+
+            @*</form>*@
+        </div>
+    </div>
+</div>
+<!-- FIN MODAL DV PENDIENTES -->
+
+
+<!-- MODAL ACEPTADO CON OBSERVACION -->
+<div class="modal fade modal-institucional" id="_Acepta_Observacion"
+     tabindex="-1" data-backdrop="static" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    Confirmar aceptación
+                </h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- Estado OK -->
+                <div class="estado estado-ok" >
+                    <input type="text" id="modal_TEstadoOK" readonly  style="font-size:1.8rem;"/>
+                </div>
+
+                <!-- Estado NO OK -->
+                <div class="estado estado-nook">
+                    <input type="text" id="modal_TEstadoNOOK" readonly style="font-size:1.8rem;" />
+                </div>
+
+                <p class="texto-explicativo">
+                    Usted está a punto de actualizar el estado del expediente
+                    para que pueda ser visado por otras personas.
+                </p>
+
+                <div class="form-group">
+
+                    <input type="text"
+                           id="_CampoObservacion"
+                           class="form-control"
+                           placeholder="Ingrese una observación clara y breve" />
+                </div>
+
+                <!-- Campos ocultos -->
+                <input type="hidden" id="modal_rut" />
+                <input type="hidden" id="modal_factura" />
+                <input type="hidden" id="modal_estadoActual" />
+                <input type="hidden" id="modal_estadoNuevo" />
+                <input type="hidden" id="modal_fila" />
+                <input type="hidden" id="modal_obj" />
+
+                <div id="_mensaje_Observaciones" class="mensaje-observacion"></div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-primary"
+                        id="_acepta-cambio-estado">
+                    Aceptar
+                </button>
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    Cancelar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- FIN MODAL -->
+<!-- MODAL ACEPTADO CON OBSERVACION -->
+@*<div class="modal" id="_Acepta_Observacion" role="dialog" tabindex="-1" aria-labelledby="" data-backdrop="static" style="overflow:auto">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirme Aceptación</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modal_TEstadoOK" readonly style="width: 100%; border: 0px; font-size: large; text-align: center; margin-bottom: 20px;" />
+                <input type="text" id="modal_TEstadoNOOK" readonly style="width: 100%; border: 0px; font-size: large; text-align: center; margin-bottom: 20px;" />
+                <p>Usted quiere actualizar el estado del expediente, para que pueda ser visado por otras personas</p>
+                <p>
+                    <input type="text" id="_CampoObservacion" class="form-control" />
+                    <input type="text" id="modal_rut" hidden />
+                    <input type="text" id="modal_factura" hidden />
+                    <input type="text" id="modal_estadoActual" hidden />
+                    <input type="text" id="modal_estadoNuevo" hidden />
+                    <input type="text" id="modal_fila" hidden />
+                    <input type="text" id="modal_obj" hidden />
+                </p>
+                <p><div id="_mensaje_Observaciones"></div></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="_acepta-cambio-estado">Aceptar</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>*@
+<!-- FIN MODAL ACEPTADO CON OBSERVACION -->
+<style>
+    /* Modal casi fullscreen */
+    .modal-documentos-adjuntos {
+        width: 98vw;
+        height: 98vh;
+        max-width: none;
+        margin: 1vh auto;
+    }
+
+        /* Modal flex vertical */
+        .modal-documentos-adjuntos .modal-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header y footer fijos */
+        .modal-documentos-adjuntos .modal-header,
+        .modal-documentos-adjuntos .modal-footer {
+            flex: 0 0 auto;
+        }
+
+    /* Body ocupa resto */
+    .modal-body-documentos-adjuntos {
+        flex: 1 1 auto;
+        padding: 10px;
+        overflow: hidden;
+    }
+
+    /* Layout horizontal */
+    .documentos-layout {
+        display: flex;
+        height: 100%;
+        gap: 12px;
+    }
+
+    /* Panel izquierdo */
+    .documentos-listado {
+        flex: 0 0 40%;
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+    }
+
+    /* Panel derecho */
+    .documentos-preview {
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
+
+    /* Iframe 100% real */
+    .iframe-documentos {
+        width: 100%;
+        height: 100%;
+        border: 2px solid #4e46e5;
+    }
+</style>
+
+<!-- MODAL DOCUMENTOS ADJUNTOS -->
+<div class="modal fade" id="modal_DocumentosAdjuntos_2" tabindex="-1">
+    <div class="modal-dialog modal-documentos-adjuntos" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Documentos Adjuntos</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+                <div id="modal_datos_cabecera"></div>
+            </div>
+
+            <div class="modal-body modal-body-documentos-adjuntos">
+
+                <!-- CONTENEDOR FLEX -->
+                <div class="documentos-layout">
+
+                    <!-- PANEL IZQUIERDO -->
+                    <div class="documentos-listado">
+                        <div class="mb-2">
+                            <label>RUT</label>
+                            <input type="text" id="rutModal" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Proveedor</label>
+                            <input type="text" id="nombreModal" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Factura</label>
+                            <input type="text" id="facturaModal" class="form-control" readonly>
+                        </div>
+
+                        <table id="_tablaDocumentosAdjuntosView-1" class="tabla-documentos">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nombre del archivo</th>
+                                    <th>Ver</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <!-- PANEL DERECHO -->
+                    <div class="documentos-preview">
+                        <iframe id="_documentoAdjuntoPreview"
+                                name="_documentoAdjuntoPreview"
+                                class="iframe-documentos">
+                        </iframe>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- FIN MODAL DOCUMENTOS ADJUNTOS -->
+<!-- MODAL DOCUMENTOS ADJUNTOS -->
+<div class="modal" id="modal_DocumentosAdjuntos_2_RESPALDO" role="dialog" tabindex="-1" aria-labelledby="" data-backdrop="static" style="overflow:auto">
+    <div class="modal-dialog" role="document" style="width: 98vw; max-width: none; height: 98%; margin: 0;">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Documentos Adjuntos</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="mb-3">
+
+
+                    <div class="block50">
+                        <div class="block3">
+
+                            <div class="mb-3">
+                                <label for="rutModal" class="form-label">RUT</label>
+                                <input type="text" id="rutModal" class="form-control" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="nombreModal" class="form-label">Proveedor</label>
+                                <input type="text" id="nombreModal" class="form-control" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="facturaModal" class="form-label">Factura</label>
+                                <input type="text" id="facturaModal" class="form-control" readonly>
+                            </div>
+
+                        </div>
+
+                        <div class="block3">
+                            <div class="tablas">
+                                <table id="_tablaDocumentosAdjuntosView" class="tabla-documentos">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Nombre del archivo View 2</th>
+                                            <th>Ver</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Aquí se llenan las filas desde el AJAX -->
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="block50">
+                        <div class="block3">
+                            <div class="tablas">
+                                <iframe id="_documentoAdjuntoPreview" name="_documentoAdjuntoPreview" style="border:2px solid #4e46e5;"></iframe>
+                            </div>
+
+                        </div>
+                        <div class="block3"></div>
+                    </div>
+
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIN MODAL DOCUMENTOS ADJUNTOS -->
+<!-- MODAL VER OBSERVACION -->
+
+
+
+<div class="modal" id="modalObservacion" role="dialog" tabindex="-1" aria-labelledby="" data-backdrop="static" style="overflow:auto">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalObsLabel">Observación de Factura</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <div id="textoObservacion" class="p-2" style="white-space: pre-wrap;"></div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function mostrarObservacion(lifnr, factura, texto) {
+
+
+        document.getElementById("textoObservacion").textContent = texto;
+        $('#modalObservacion').modal('show');
+
+    }
+
+</script>
+
+
+
+
+<!-- FIN MODAL VER OBSERVACION-->

@@ -1,0 +1,236 @@
+﻿
+@model pnacpacam.Models.Seleccion
+
+@{ var tabla = Model.item; }
+
+@{
+    Layout = null;
+}
+
+@Html.AntiForgeryToken()
+
+<div class="loader_Tablas" style="" hidden>CONSULTANDO ... por favor espere</div>
+
+<div class="container-datatable">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            @if (tabla == "Facturas")
+            {
+
+                <table id="tablaFacturas" 
+                       class="table table-hover table-bordered table-striped table-datatable-app"
+                       width="100%">
+
+                    <thead class="thead-app">
+                        <tr>
+                            <th>Rut</th>
+                            <th>Nombre</th>
+                            <th>Material</th>
+                            <th>Denominacion</th>
+                            <th>Factura</th>
+                            <th>Estado / Acción</th>
+                            <th>Expediente</th>
+                            <th>Crear Expediente</th>
+                            <th>Ver Expediente</th>
+                            <th>ver Guías</th>
+                            <th>Factura Comisión</th>
+                            <th>Documentos Adjuntos</th>
+                            <th>Año</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+
+                </table>
+            }
+
+            <script>
+                function changeColor(obj) {
+
+                    var color = obj.style.color;
+                    if (color == "rgb(177, 177, 175)") {
+                        obj.style.color = "rgb(51,122,183)";
+                    } else {
+                        obj.style.color = "rgb(177, 177, 175)";
+                    }
+                }
+            </script>
+            <style>
+                tr.row_selected td {
+                    background-color: #0d47a1 !important;
+                    color: white !important;
+                }
+            </style>
+
+            @if (tabla == "Guias")
+            {
+                <div>
+                    Quitar/Agregar:
+                    <a class="toggle-vis" data-column="0" onclick="changeColor(this)">[NFactura]</a>
+                    <a class="toggle-vis" data-column="1" onclick="changeColor(this)">[DocumentoVenta]</a>
+                    <a class="toggle-vis" data-column="2" onclick="changeColor(this)">[PedidoCompra]</a>
+                    <a class="toggle-vis" data-column="3" onclick="changeColor(this)">[GrupoArticulos]</a>
+                    <a class="toggle-vis" data-column="4" onclick="changeColor(this)">[Canal]</a>
+                    <a class="toggle-vis" data-column="5" onclick="changeColor(this)">[DescripcionCanal]</a>
+                    <a class="toggle-vis" data-column="6" onclick="changeColor(this)">[GuiaDespacho]</a>
+                    <a class="toggle-vis" data-column="7" onclick="changeColor(this)">[CodigoMaterial]</a>
+                    <a class="toggle-vis" data-column="8" onclick="changeColor(this)">[Denominacion]</a>
+                    <a class="toggle-vis" data-column="9" onclick="changeColor(this)">[Lote]</a>
+                    <a class="toggle-vis" data-column="10" onclick="changeColor(this)">[CantidadDocumento]</a>
+                    <a class="toggle-vis" data-column="11" onclick="changeColor(this)">[CantidadInformada]</a>
+                    <a class="toggle-vis" data-column="12" onclick="changeColor(this)">[ValorNeto]</a>
+                    <a class="toggle-vis" data-column="13" onclick="changeColor(this)">[ZZIDMER_E]</a>
+                    <a class="toggle-vis" data-column="14" onclick="changeColor(this)">[RutEstablecimiento]</a>
+                    <a class="toggle-vis" data-column="15" onclick="changeColor(this)">[Destinatario]</a>
+                    <a class="toggle-vis" data-column="16" onclick="changeColor(this)">[ServicioSalud]</a>
+                </div>
+                <div>
+                    <table id="tablaGuias" class="table table-hover table-bordered table-striped table-datatable-app" width:"100%">
+                        <thead class="thead-app">
+                            <tr>
+                                @*<th> PDF </th>*@
+                                <th> Factura             </th>
+                                <th> DocumentoVenta       </th>
+                                <th> Pedido Compra         </th>
+                                <th> GrupoArticulos       </th>
+                                <th> Canal                </th>
+                                <th> Descripción Canal    </th>
+                                <th> Guia                 </th>
+                                <th> CodigoMaterial       </th>
+                                <th> Denominacion </th>
+                                <th> Lote                 </th>
+                                <th> CantidadDocumento    </th>
+                                <th> CantidadInformada    </th>
+                                <th> ValorNeto            </th>
+                                <th> ZZIDMER_E            </th>
+                                <th>RutEstablecimiento</th>
+                                <th>Destinatario</th>
+                                <th>ServicioSalud</th>
+                                @*<th>ver</th>*@
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            }
+
+            @if (tabla == "zdis022")
+            {
+                <table id="tablaZDis022" class="table table-hover table-bordered table-striped table-datatable-app" width="100%">
+
+                    <thead class="thead-app">
+                        <tr>
+                            <th> Documento_de_venta   </th>
+                            <th> Pedido_de_Compra     </th>
+                            <th> Grupo_de_articulos   </th>
+                            <th> Canal                </th>
+                            <th> Código_Material      </th>
+                            <th> Fecha_de_entrega_al  </th>
+                            <th> Fecha_entrega_al_OL  </th>
+                            <th> Cantidad_documento_d </th>
+                            <th> Cantidad_informada   </th>
+                            <th> Lote                 </th>
+                            <th> Fecha_entrega_al_ol_ </th>
+                            <th> OS                   </th>
+                            <th> NFactura             </th>
+                            <th> Guía_de_despacho     </th>
+                            <th> Observaciones        </th>
+                            <th> Suspensión_de_entreg </th>
+                            <th> Autoriza_suspensión  </th>
+                            <th> Fecha_de_carga_de_in </th>
+                            <th> Salida_mercancía     </th>
+                            <th> Documento_de_entrega </th>
+                            <th> Status_carga_cedible </th>
+                            <th> Fecha_Sal_mercancía  </th>
+                            <th> Fact_comisiones_pro  </th>
+                            <th> Fecha_fact_comision  </th>
+                            <th> Fecha_recepción_conf </th>
+                            <th> Fecha_entrega_cedibl </th>
+                            <th> Centro               </th>
+                            <th> Valor_neto           </th>
+                            <th> Bultos               </th>
+                            <th> Volumen              </th>
+                            <th> Peso                 </th>
+                            <th> Fecha_vencimiento    </th>
+                            <th> GTIN                 </th>
+                            <th> Agrupador            </th>
+                            <th> Motivo_Rechazo       </th>
+                            <th> OC                   </th>
+                            <th> DocVenta             </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+
+                </table>
+            }
+
+            @if (tabla == "DVPendientes")
+            {
+
+                <div>
+                    <table id="tablaDVPendientes" class="table table-hover table-bordered table-striped table-datatable-app" width:"100%">
+                        <thead class="thead-app">
+                            <tr>
+                                <th> Factura             </th>
+                                <th> DocumentoVenta       </th>
+                                <th> Pedido Compra         </th>
+                                <th> GrupoArticulos       </th>
+                                <th> Canal                </th>
+                                <th> Guia                 </th>
+                                <th> CodigoMaterial       </th>
+                                <th> Lote                 </th>
+                                <th> CantidadDocumento    </th>
+                                <th> CantidadInformada    </th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            }
+
+            @if (tabla == "FacturasHistorico")
+            {
+
+                <table id="tablaFacturasHistorico" class="table table-hover table-bordered table-striped table-datatable-app" width="100%">
+
+                    <thead class="thead-app">
+                        <tr>
+                            <th>Año</th>
+                            <th>Rut</th>
+                            <th>Nombre</th>
+                            <th>Material</th>
+                            <th>Denominacion</th>
+                            <th>Factura</th>
+                            <th>Expediente</th>
+                            <th>Finalizado</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            }
+            @if (tabla == "DocumentosAdjuntos")
+            {
+
+                <div>
+                    <table id="tablaDocumentosAdjuntos" class="table table-hover table-bordered table-striped table-datatable-app" width:"100%">
+                        <thead class="thead-app">
+                            <tr>
+                                <th> Factura     #3        </th>
+                                <th> DocumentoVenta       </th>
+                                <th> Pedido Compra         </th>
+                                <th> ver    </th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+
+
+

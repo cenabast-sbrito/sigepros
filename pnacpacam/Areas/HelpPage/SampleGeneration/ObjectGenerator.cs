@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -35,7 +34,6 @@ namespace WebApi.Areas.HelpPage
             return GenerateObject(type, new Dictionary<Type, object>());
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Here we just want to return null if anything goes wrong.")]
         private object GenerateObject(Type type, Dictionary<Type, object> createdObjectReferences)
         {
             try
@@ -398,7 +396,6 @@ namespace WebApi.Areas.HelpPage
             private long _index = 0;
             private static readonly Dictionary<Type, Func<long, object>> DefaultGenerators = InitializeGenerators();
 
-            [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "These are simple type factories and cannot be split up.")]
             private static Dictionary<Type, Func<long, object>> InitializeGenerators()
             {
                 return new Dictionary<Type, Func<long, object>>
@@ -418,13 +415,13 @@ namespace WebApi.Areas.HelpPage
                     { typeof(Object), index => new object() },
                     { typeof(SByte), index => (SByte)64 },
                     { typeof(Single), index => (Single)(index + 0.1) },
-                    { 
+                    {
                         typeof(String), index =>
                         {
                             return String.Format(CultureInfo.CurrentCulture, "sample string {0}", index);
                         }
                     },
-                    { 
+                    {
                         typeof(TimeSpan), index =>
                         {
                             return TimeSpan.FromTicks(1234567);
@@ -433,7 +430,7 @@ namespace WebApi.Areas.HelpPage
                     { typeof(UInt16), index => (UInt16)(index % UInt16.MaxValue) },
                     { typeof(UInt32), index => (UInt32)(index % UInt32.MaxValue) },
                     { typeof(UInt64), index => (UInt64)index },
-                    { 
+                    {
                         typeof(Uri), index =>
                         {
                             return new Uri(String.Format(CultureInfo.CurrentCulture, "http://webapihelppage{0}.com", index));

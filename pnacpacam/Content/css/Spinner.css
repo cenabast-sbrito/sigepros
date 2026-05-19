@@ -1,0 +1,43 @@
+﻿.table-wrap {
+    position: relative
+}
+
+/* Capa translúcida */
+.table-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,.65);
+    backdrop-filter: blur(2px);
+}
+
+/* Tarjeta flotante */
+.table-overlay__box {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    padding: .625rem .875rem;
+    background: #ffffff;
+    border: 1px solid #e6e8eb;
+    border-radius: 12px;
+    color: #111827;
+    box-shadow: 0 10px 20px rgba(15,23,42,.08), 0 2px 6px rgba(15,23,42,.06);
+}
+
+/* Spinner */
+.table-overlay__spinner {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #e2e8f0;
+    border-top-color: #16a34a; /* verde sutil */
+    animation: spin .7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .table-overlay__spinner {
+        animation: none
+    }
+}

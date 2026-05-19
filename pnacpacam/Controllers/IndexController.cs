@@ -1,19 +1,11 @@
 ﻿using pnacpacam.Models;
-using System.Security.Claims;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Script.Serialization;
 using System.Web.Security;
-using System.Security.Principal;
 
 namespace pnacpacam.Controllers
 {
@@ -23,24 +15,12 @@ namespace pnacpacam.Controllers
         // GET: Index
         public ActionResult Index()
         {
-        
-              //        https://testaplicacionesweb.cenabast.cl/ProyectosTI/pnac
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri("https://testaplicacionesweb.cenabast.cl/");
-//            client.BaseAddress = new Uri("https://testaplicacionesweb.cenabast.cl/ProyectosTI/pnac");
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            if (Session["Perfil"] == null)
+            if (User.Identity.IsAuthenticated)
             {
-                return PartialView();
-            } else 
-            {
-                return Redirect("/Home/#/#bienvenida");
-//                if (Session["Perfil"].ToString() != "3") { return Redirect("/Home/#/#bienvenida"); }
-//                else
-//                    return Redirect("/Home/#/#ingreso-resultados");
+                return RedirectToAction("Index", "Home");
             }
+
+            return View(); // o PartialView()
         }
 
         [HttpPost]
@@ -48,49 +28,63 @@ namespace pnacpacam.Controllers
         [ValidateAntiForgeryToken]
         public JsonResult Login(FormCollection collection)
         {
-            string[] user = collection["username"].Replace(".", "").Trim().Split('-');
+            string[] user = collection["rutusername"].Replace(".", "").Trim().Split('-');
             string pass = collection["password"].Trim();
+            string prog = collection["programa"].Trim();
+
             Usuario usuario = new Usuario();
-            Funcionario funcionario = new Funcionario();
-            Periodo per = new Periodo();
-            if (usuario.Authorization(user[0])) 
+              
+            if (!usuario.Authorization(user[0], prog))    // SELECT rut FROM usuarios where rut = @Rut and estado=1;
+                return Json(new { state = false, message = "Usuario no habilitado" });
+
+            if (!usuario.Authenticate(user[0], pass))
+                return Json(new { state = false, message = "Usuario o contraseña incorrectos" });
+
+            usuario = usuario.GetUsuario(user[0], prog);
+
+            if (!usuario.Estado)
+                return Json(new { state = false, message = "Cuenta desactivada" });
+
+            // Crear ticket con ROL
+            var ticket = new FormsAuthenticationTicket(
+                1,
+                usuario.Rut,
+                DateTime.Now,
+                DateTime.Now.AddMinutes(60),
+                false,
+                usuario.Rol // AQUÍ VA EL ROL
+            );
+
+            string encryptedTicket = FormsAuthentication.Encrypt(ticket);
+
+            var cookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket)
             {
-                if (funcionario.Authenticate(user[0], pass))
-                {
-                    funcionario = funcionario.GetFuncionario(user[0]);
+                HttpOnly = true,
+                Secure = Request.IsSecureConnection
+            };
 
-                    ///AQUI DEBO OBTENER LOS PARAMETROS DE CONFIGURACION GLOBALES DEL SISTEMA TAL COMO EL IVA, ETC.
+            Response.Cookies.Add(cookie);
 
-                    Session["Rut"] = funcionario.Rut;
-                    Session["Nombre"] = funcionario.Nombre.Trim() + " " + funcionario.Apellido.Trim();
-                    Session["Email"] = funcionario.Email;
-                    // usuario = usuario.GetUsuario(user[0], "primary"); 
-                    usuario = usuario.GetUsuario(funcionario.Rut);
-                    Session["Perfil"] = usuario.IdPerfil;
+            // UI (NO seguridad)
+            Session["PNACPACAM_RutUsuario"] = usuario.Rut;
+            Session["PNACPACAM_NombreUsuario"] = usuario.Nombre.Trim() + " " + usuario.Apellido.Trim();
+            Session["Email"] = usuario.email;
+            Session["PNACPACAM_Rol"] = usuario.Rol;
 
-                    //                    string comoConecto = "primary";
-                    /*if (usuario.Rut == "1") comoConecto = "primaryQA";
-                    if (usuario.Rut == "2") comoConecto = "primaryQA"; // este rut es perfil 2 por lo que no es necesario que este como usuario en desa lo mismo para el 3
-                    if (usuario.Rut == "3") comoConecto = "primaryQA";
-                    */
-                    //       Session["StringConexion"] = "primary";
-                    /// Session["Periodo"] = per.GetPeriodo("primary").PeriodoActivo;
-
-                    FormsAuthentication.SetAuthCookie(funcionario.Rut, false);
-
-                    return Json(new { state = true, perfil = usuario.IdPerfil,  Nombre= Session["Nombre"], message = "" });
-
-                }
-                else
-                {
-                    return Json(new { state = false, perfil = "", message = "Estimado, su usuario y pasword no coinciden. Comuniquese con el administrador." });
-                }
-            }
-            else
+            return Json(new
             {
-                return Json(new { state = false, message = "Estimado, su usuario no se encuentra habilitado en esta plataforma. Comúniquese con el administrador." });
-            }
+                state = true,
+                Nombre = Session["PNACPACAM_NombreUsuario"],
+                Rol = usuario.Rol,
+                Rut = usuario.Rut
+            });
         }
 
     }
 }
+
+
+
+
+
+

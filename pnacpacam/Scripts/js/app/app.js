@@ -1,225 +1,263 @@
-﻿const segundos = 60;
-const unidadesDeTiempo = 5;        // segun lo definido en variable JWT_EXPIRE_MINUTES  de Web.config
-const tiempoEspera = 10;  //Tiempo de espera una vez que se ha detectado que la sesion está por vencer a causa de inactividad para que usuario presione el botón 'Mantener Sesión Activa'
-var counter = tiempoEspera;
-var tiempoSesionActiva = unidadesDeTiempo * segundos * 1000; // tiempo que durará la sesión activa sin actividad , transformacion unidadesDeTiempo a minutos
-var idleTime = 0;
-var countdown;
+﻿$(document).on('click', '#logout', function () {
+    showToast("cerrando sesión", "info", 6000);
+    window.location.hash = '';
+    logout();
+});
+// SessionGuard v1.0 – Control robusto de inactividad + limpieza de timers
+// Requiere: jQuery y (opcional) Bootstrap modal para #SesionExpiroNotif
 
-$(document).ready(function () {
+(function (w, $) {
+  if (!$) {
+    console.error("SessionGuard: jQuery es requerido.");
+    return;
+  }
 
-    $(document).on('click', '#logout', function () {
-        window.location.hash = '';
-        logout();
-    });
+  const MS = 1000;
+  const MIN =  60 * 1000; //const MIN = 60 * MS;    //solo para pruebas setear MIN a 1
+    
+  const SessionGuard = {
+    _cfg: null,
+    _intervalId: null,
+    _countdownId: null,
+    _countdownRem: 0,
+    _activityBound: false,
+    _lastActivity: Date.now(),
+    _wrappedLogout: false,
+    init(userCfg = {}) {
+      // Defaults
+      const defaults = {
+        // Tiempo total de sesión (minutos). Ajusta según tu Web.config (JWT_EXPIRE_MINUTES).
+        jwtExpireMinutes: w.APP_CONFIG?.JWT_EXPIRE_MINUTES || 90,
 
-    /*window.onhashchange = function (evt) {
-        this.currentHash();
-    }*/
+        // Minutos antes del vencimiento para mostrar advertencia
+        warningMinutes: 2,
 
-    $('.menu-principal a[data-toggle="tab"]').click(function () {
-        window.location.hash = '/' + $(this).attr('href');
-        currentHash();
-    });
-    currentHash();
-    GetVersion();
+        // Segundos de cuenta regresiva en el modal de advertencia
+        keepAliveSeconds: 30,
 
+        // Selectores del UI
+        selectors: {
+          modal: '#SesionExpiroNotif',     // modal Bootstrap
+          countdownText: '#tiemporestante',// span/elemento donde mostrar 00:SS o MM:SS
+          keepAliveBtn: '#btnMantenerSesion',
+          logoutBtn: '#logout'
+        },
 
-    /*****  Control de expiración de sesión .INI *****/
-    //Detecta actividad
-    $(window).click(function () {
- //       console.log("click realizado");
-        idleTime = 0;
-    })
-    $(window).keyup(function () {
-//        console.log("tecla presionada")
-        idleTime = 0;
-    })
-    $(window).mousemove(function () {
- //       console.log("movimiento mouse")
-        idleTime = 0;
-    })
-    //Incrementa contador idletime cada minuti.
+        // Callbacks (opcionales)
+        onKeepAlive: null,   // p.ej. ping al backend
+        onExpire: null,      // p.ej. redirigir a login
+        onLogout: null       // llamado justo antes del logout real
+      };
 
-    var idleInterval = setInterval(timerIncrement, tiempoSesionActiva);
+      this._cfg = $.extend(true, {}, defaults, userCfg);
+      this._lastActivity = Date.now();
 
-    $('#btnMantenerSesion').click(function () {
-        idleTime = 0;
-        $('#SesionExpiroNotif').modal('hide');
-        counter = tiempoEspera;
-        clearInterval(countdown);
-    });
-    /*****  Control de expiración de sesión .FIN *****/
-   
+      // Limpieza previa si ya estaba corriendo
+      this.stop();
+
+      // Enlazar actividad
+      this._bindActivity();
+
+      // Enlazar botón "Mantener Sesión"
+      this._bindKeepAlive();
+
+      // Envolver logout() global si existe para asegurar limpieza
+      this._wrapLogout();
+
+      // Limpieza al salir
+      w.addEventListener('beforeunload', this.stop.bind(this));
+
+      // Iniciar loop de verificación (cada 1 segundo)
+      this._intervalId = setInterval(this._tick.bind(this), 1000);
+
+      // También limpiamos si se hace click en el botón de logout por selector
+      const { logoutBtn } = this._cfg.selectors;
+      if (logoutBtn) {
+        $(document).off('click.SessionGuard', logoutBtn).on('click.SessionGuard', logoutBtn, () => {
+          // Si tu app ya maneja logout por AJAX + redirect, igual limpiamos por seguridad
+          this.stop();
+        });
+      }
+
+      // Exponer publicamente por si necesitas tocar desde fuera
+      w.SessionGuard = this;
+      // console.info("SessionGuard iniciado", this._cfg);
+    },
+
+    stop() {
+      if (this._intervalId) { clearInterval(this._intervalId); this._intervalId = null; }
+      if (this._countdownId) { clearInterval(this._countdownId); this._countdownId = null; }
+      this._unbindActivity();
+      this._hideWarningModal();
+    },
+
+    touch() { // Permite resetear inactividad manualmente
+      this._lastActivity = Date.now();
+    },
+
+    // ---- Internos ----
+    _bindActivity() {
+      if (this._activityBound) return;
+      const reset = () => { this._lastActivity = Date.now(); };
+      $(w).on('click.SessionGuard keyup.SessionGuard mousemove.SessionGuard', reset);
+      this._activityBound = true;
+    },
+
+    _unbindActivity() {
+      if (!this._activityBound) return;
+      $(w).off('click.SessionGuard keyup.SessionGuard mousemove.SessionGuard');
+      this._activityBound = false;
+    },
+
+    _bindKeepAlive() {
+      const { keepAliveBtn } = this._cfg.selectors;
+      if (!keepAliveBtn) return;
+
+      $(document).off('click.SessionGuard', keepAliveBtn).on('click.SessionGuard', keepAliveBtn, () => {
+        this._lastActivity = Date.now();
+        this._hideWarningModal();
+        this._stopCountdown();
+
+        // Callback opcional para refrescar sesión en backend
+        if (typeof this._cfg.onKeepAlive === 'function') {
+          try { this._cfg.onKeepAlive(); } catch (e) { console.warn("onKeepAlive error:", e); }
+        }
+      });
+    },
+
+    _wrapLogout() {
+      if (this._wrappedLogout) return;
+
+      if (typeof w.logout === 'function') {
+        const original = w.logout.bind(w);
+        w.logout = (...args) => {
+          // Limpieza ANTES de logout real
+          this.stop();
+          if (typeof this._cfg.onLogout === 'function') {
+            try { this._cfg.onLogout(); } catch (e) { console.warn("onLogout error:", e); }
+          }
+          return original(...args);
+        };
+      }
+      this._wrappedLogout = true;
+    },
+
+    _tick() {
+      const now = Date.now();
+      const inactiveMs = now - this._lastActivity;
+
+      const sessionMaxMs = this._cfg.jwtExpireMinutes * MIN;
+      const warningMs    = this._cfg.warningMinutes * MIN;
+
+      // Mostrar advertencia cuando se ingresa al tramo final
+      if (inactiveMs >= (sessionMaxMs - warningMs) && inactiveMs < sessionMaxMs) {
+        this._showWarningModal();
+        this._startCountdown();
+      } else {
+        // Si aún no entra a tramo de advertencia, aseguramos el modal oculto
+        this._hideWarningModal();
+        this._stopCountdown();
+      }
+
+      // Expirar sesión
+      if (inactiveMs >= sessionMaxMs) {
+        this._hideWarningModal();
+        this.stop(); // Detener todo antes de salir
+
+        if (typeof this._cfg.onExpire === 'function') {
+          try { this._cfg.onExpire(); } catch (e) { console.warn("onExpire error:", e); }
+        }
+
+        // Si existe logout() global en tu app, llamarlo
+        if (typeof w.logout === 'function') {
+          w.logout();
+        } else {
+          // Fallback: recarga a raíz de la app (ajusta si necesitas)
+          w.location.reload();
+        }
+
+        // (opcional) feedback visual
+        try { alert("Su sesión ha expirado por inactividad."); } catch (e) {}
+      }
+    },
+
+    _showWarningModal() {
+      const { modal } = this._cfg.selectors;
+      if (!modal) return;
+      try { $(modal).modal('show'); } catch (e) { /* no Bootstrap */ }
+    },
+
+    _hideWarningModal() {
+      const { modal } = this._cfg.selectors;
+      if (!modal) return;
+      try { $(modal).modal('hide'); } catch (e) { /* no Bootstrap */ }
+    },
+
+    _startCountdown() {
+      if (this._countdownId) return; // ya corriendo
+
+      this._countdownRem = this._cfg.keepAliveSeconds;
+      this._renderCountdown();
+
+      this._countdownId = setInterval(() => {
+        this._countdownRem -= 1;
+        this._renderCountdown();
+
+        if (this._countdownRem <= 0) {
+          this._stopCountdown();
+          // Aquí podrías decidir forzar expiración inmediata si lo deseas.
+          // this._lastActivity = Date.now() - (this._cfg.jwtExpireMinutes * MIN + 1);
+        }
+      }, 1000);
+    },
+
+    _stopCountdown() {
+      if (!this._countdownId) return;
+      clearInterval(this._countdownId);
+      this._countdownId = null;
+    },
+
+    _renderCountdown() {
+      const { countdownText } = this._cfg.selectors;
+      if (!countdownText) return;
+      const s = this._countdownRem;
+      const mm = String(Math.floor(s / 60)).padStart(2, '0');
+      const ss = String(s % 60).padStart(2, '0');
+      $(countdownText).text(`${mm}:${ss}`);
+    }
+  };
+
+  // Exponer en window
+  w.SessionGuard = SessionGuard;
+
+})(window, window.jQuery);
+
+// ======== Inicialización plug-and-play ========
+// Ajusta jwtExpireMinutes y warningMinutes a tu realidad.
+// Si tienes un endpoint para refrescar sesión, inclúyelo en onKeepAlive.
+$(function () {
+  SessionGuard.init({
+    jwtExpireMinutes: window.APP_CONFIG?.JWT_EXPIRE_MINUTES || 90,
+    warningMinutes: 2,
+    keepAliveSeconds: 30,
+    selectors: {
+      modal: '#SesionExpiroNotif',
+      countdownText: '#tiemporestante',
+      keepAliveBtn: '#btnMantenerSesion',
+      logoutBtn: '#logout'
+    },
+    onKeepAlive: function () {
+      // (Opcional) ping para mantener sesión del lado servidor:
+      // $.get(apiUrl("Auth/KeepAlive"));
+    },
+    onLogout: function () {
+      // (Opcional) logging/metricas
+      // console.log("Limpiando recursos antes de logout…");
+    },
+    onExpire: function () {
+      // (Opcional) acciones al expirar (tracking, etc.)
+      // console.log("Sesión expirada por inactividad");
+    }
+  });
 });
 
-function currentHash() {
-
-    var currentHash = location.hash.split('/');
-    $('.menu-principal a[data-toggle="tab"]').each(function (i, element) {
-        if ($(this).attr("href") == currentHash[1]) {
-            $(this).tab('show')
-        }
-    });
-
-}
-
-function logout() {
-    try {
-        $.ajax({
-            type: "GET",
-            url: "../Home/LogOut",
-            success: function (res) {
-                window.location.href = '..';
-//                window.location.href = '../';       //login
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error("Ha ocurrido un error : " + jqXHR.responseText);
-            }
-        });
-    } catch (ex) {
-        //$("#area").html("Error : " + ex);
-        console.error("Ha ocurrido un error : " + ex.name + " " + ex.message);
-    }
-}
-
-function formatDate(fecha) {
-
-    const re = /-?\d+/;
-    const m = re.exec(fecha);
-    var date = parseInt(m[0], 10);
-    date = new Date(date);
-    return ("00" + date.getDate()).slice(-2) + "-" +
-        ("00" + (date.getMonth() + 1)).slice(-2) + "-" +
-        date.getFullYear();
-
-}
-
-function formatLoadDate(fecha) {
-
-    const re = /-?\d+/;
-    const m = re.exec(fecha);
-    var date = parseInt(m[0], 10);
-    date = new Date(date);
-    return date.getFullYear() + "-" + ("00" + (date.getMonth() + 1)).slice(-2) + "-" + ("00" + date.getDate()).slice(-2);
-
-}
-
-function fromatDateTime(fecha) {
-    const re = /-?\d+/;
-    const m = re.exec(fecha);
-    var date = parseInt(m[0], 10);
-    date = new Date(date);
-    return ("00" + date.getDate()).slice(-2) + "-" +
-        ("00" + (date.getMonth() + 1)).slice(-2) + "-" +
-        date.getFullYear() + " " +
-        ("00" + date.getHours()).slice(-2) + ":" +
-        ("00" + date.getMinutes()).slice(-2) + ":" +
-        ("00" + date.getSeconds()).slice(-2);
-}
-
-function getYearNext() {
-    const fecha = new Date();
-    const year = fecha.getFullYear() + 1;
-
-    return year;
-}
-
-function GetVersion() {
-    try {
-        $.ajax({
-            type: "GET",
-            url: "../Config/getVersion",
-            success: function (res) {
-                $('#version').text(res);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                //        console.error("Ha ocurrido un error : " + ex.name + " " + ex.message);
-                console.error("Ha ocurrido un error 3: ");
-            }
-        });
-    } catch (ex) {
-        //        console.error("Ha ocurrido un error : " + ex.name + " " + ex.message);
-        console.error("Ha ocurrido un error 3: ");
-    }
-}
-
-
-function darFormato(valor, decimales) {
-    resultado = number_format(valor, decimales, ",", ".");
-    return resultado; //.toLocaleString('fullwide');
-}
-
-function number_format(number, decimals, dec_point, thousands_sep) {
-    // Strip all characters but numerical ones.
-    number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
-    var n = !isFinite(+number) ? 0 : +number,
-        prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
-        sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
-        dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
-        s = '',
-        toFixedFix = function (n, prec) {
-            var k = Math.pow(10, prec);
-            return '' + Math.round(n * k) / k;
-        };
-    // Fix for IE parseFloat(0.55).toFixed(0) = 0;
-    s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
-    if (s[0].length > 3) {
-        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
-    }
-    if ((s[1] || '').length < prec) {
-        s[1] = s[1] || '';
-        s[1] += new Array(prec - s[1].length + 1).join('0');
-    }
-    return s.join(dec);
-}
-
-function formatTime(segundos) {
-    return [
-        parseInt(segundos / 60 % 60),
-        parseInt(segundos % 60)
-    ]
-        .join(":")
-        .replace(/\b(\d)\b/g, "0$1")
-};
-
-
-/*****  Control de Timers expiración de sesión .INI *****/
-function timerIncrement() {
-    const tiempoNotificacion = 1;  //minutos unidadesDeTiempo
-    const tiempoRedireccion = 2;   //minutos 
-
-    idleTime = idleTime + 1;
-    if (idleTime > tiempoNotificacion) {
-        $('#SesionExpiroNotif').modal('show');
-        startTimer();
-    }
-    if (idleTime > tiempoRedireccion) {
-
-        $('#SesionExpiroNotif').modal('hide');
-        logout();
-        alert("Su sesión ha expirado por inactividad.");
-    }
-};
-
-
-function startTimer() {
-    countdown = setInterval(countDownClock, 1000);
-};
-
-
-function countDownClock() {
-    counter = counter - 1
-    if (counter < 10) {
-        $('#tiemporestante').text("0" + formatTime(counter));
-    }
-    else {
-        $('#tiemporestante').text(formatTime(counter));
-    }
-    if (counter == 0) {
-        counter = tiempoEspera;
-        clearInterval(countdown);
-    }
-};
-
-/*****  Control de expiración de sesión Timers .FIN *****/

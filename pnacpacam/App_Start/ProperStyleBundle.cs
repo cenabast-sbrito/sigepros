@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Optimization;
-using System.Linq;
 
 namespace pnacpacam.App_Start
 {
-    public class ProperStyleBundle: StyleBundle
+    public class ProperStyleBundle : StyleBundle
     {
         public override IBundleOrderer Orderer
         {

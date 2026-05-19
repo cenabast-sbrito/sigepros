@@ -1,0 +1,189 @@
+﻿<style>
+
+    /* Estilo base de los íconos de acción */
+    .action-icon {
+        font-size: 26px;
+        cursor: pointer;
+        margin: 0 6px;
+        color: #005b9f; /* color corporativo */
+        transition: transform .15s ease, opacity .15s ease;
+        vertical-align: middle;
+    }
+
+        .action-icon:hover {
+            transform: scale(1.15);
+            opacity: .9;
+        }
+
+        /* Deshabilitado */
+        .action-icon.disabled {
+            color: #adb5bd !important;
+            cursor: not-allowed;
+            opacity: .7;
+            transform: none;
+        }
+
+    /* Íconos específicos (opcional, si quieres colores distintos) */
+    .icon-edit {
+        color: #005b9f;
+    }
+    /* lápiz */
+    .icon-toggle-on {
+        color: #16a34a;
+    }
+    /* desactivar (está ON) */
+    .icon-toggle-off {
+        color: #adb5bd /* color: #f59e0b;*/
+    }
+    /* activar (está OFF) */
+
+</style>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+        $('#href_proveedores').on('shown.bs.tab', function () {
+            try {
+
+                _ocultarImagen();
+
+            } catch (err) {
+                console.error("Error al inicializar carga de proveedores:", err);
+            }
+        });
+    });
+
+</script>
+
+<div class="panel panel-primary">
+
+    <div class="row">
+        <div class="titulo-principal">
+            <h2>Maestro de Proveedores del PNAC-PACAM</h2>
+        </div>
+    </div>
+
+    <table id="tableroProveedores"
+           class="table table-hover table-bordered table-striped table-datatable-app"
+           width="100%">
+
+        <thead class="thead-app">
+            <tr>
+                <th>Rut</th>
+                <th>Nombre</th>
+                <th>Programa</th>
+                <th>Actualizar</th>
+                <th>Activar/Desactivar</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+
+    </table>
+</div>
+
+<!-- Modal Nuevo Proveedor -->
+
+<div class="modal fade" id="modalAgregarProveedor" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                <div class="titulo-modal">
+                    <h2>Nuevo Proveedor</h2>
+                </div>
+
+            </div>
+
+            <!-- Formulario -->
+            <form id="formProveedor">
+                <div class="modal-body container-fluid">
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="rutProveedor" class="label-formulario">Rut</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="rutProveedorEdit" name="rutProveedorEdit" type="text" class="form-control" placeholder="Sin puntos, sin guión y sin digito verificador" value="" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="nombreProveedorEdit" class="label-formulario">Nombre</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="nombreProveedorEdit" name="nombreProveedorEdit" type="text" class="form-control" placeholder="Nombres" value="" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="programaProveedorEdit" class="label-formulario">Programa</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="cprogramaProveedorEdit" class="form-control" type="hidden" style="width: 28% !important;" />
+                            <select id="programaProveedorEdit" name="programaProveedor" class="form-control" required></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pie del Modal -->
+                <div class="modal-footer">
+                    <button id="modalAgregarProveedorBtnGuardar" type="button" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifica Proveedor -->
+<div class="modal fade" id="modalModificarProveedor" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="titulo-modal">
+                    <h2>Actualizar Proveedor</h2>
+                </div>
+            </div>
+            <form id="formModProveedor">
+                <div class="modal-body container-fluid">
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="rutProveedorMod" class="label-formulario">Rut</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="rutProveedorMod" name="rutProveedorMod" type="text" class="form-control" value="" disabled>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="nombreProveedorMod" class="label-formulario">Nombre</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="nombreProveedorMod" name="nombreProveedorMod" type="text" class="form-control" placeholder="Nombre" value="" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4 form-label">
+                            <label for="programaProveedorMod" class="label-formulario">Programa</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select id="programaProveedorMod" name="programaProveedorMod" class="form-control" required></select>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Pie del Modal -->
+                <div class="modal-footer">
+                    <button id="modificaProveedor" type="button" class="btn btn-primary">Modifica</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

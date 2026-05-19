@@ -1,0 +1,158 @@
+﻿@Html.AntiForgeryToken()
+
+<style>
+    .row {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .block1 {
+        width: 70%;
+        float: left;
+    }
+
+    .block2 {
+        width: 30%;
+        float: left;
+    }
+</style>
+
+
+
+<div class="panel panel-primary">
+
+    <div class="panel-heading">
+        <strong>Filtro</strong>
+    </div>
+
+    <div class="container-datatable">
+
+        <div>
+            <div class="panel-body">
+                @{
+                    string formatoFecha2 = "yyyy-MM-dd";
+                    string formatoHora2 = "HH:mm:ss";
+                    var fechaActual2 = DateTime.Now.ToString(formatoFecha2);
+                    var horaActual2 = DateTime.Now.ToString(formatoHora2);
+                }
+                <div class="row" style="background-color:darkgray; padding-top:15px;">
+                    <!--
+                    <div class="col-md-2">
+                        <label for="vfechaInicialReporte01">Inicio Periodo</label>
+                        <input id="vfechaInicialReporte01" name="vfechaInicialReporte01" value="fechaActual2" type="date" class="form-control" placeholder="Fecha Inicio Periodo" required aria-required="true" style="width: auto;">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="vfechaInicialReporte02">Fin Periodo</label>
+                        <input id="vfechaFinalReporte01" name="vfechaInicialReporte02" value="fechaActual2" type="date" class="form-control" placeholder="Fecha Final Periodo" required aria-required="true" style="width: auto;">
+                    </div>
+                    -->
+
+                    <div class="col-md-2">
+                        <label for="rutProveeedor">Cliente</label>
+                        <input class="form-control rut" id="rutProveedor" name="rutProveedor" type="text" placeholder="Rut del Proveedor" required="" aria-required="true" disabled style="width: auto;">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="nombreProveedor">Nombre Proveedor</label>
+                        <select id="nombreProveedor" name="nombreProveedor" class="form-control select2" required></select>
+                    </div>
+                    <div class="col-md-1">
+                        <label for="filtro-nfactura">Factura</label>
+                        <input id="filtro-nfactura" name="filtro-nfactura" type="text" class="form-control" placeholder="Número de Factura" maxlength="12" value="" required>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="btn-consultaFactura">Consultar</label>
+                        <button id="btn-consultaFactura" type="button" class="form-control btn-primary" onclick="getFacturaHTML();"><i class='fas fa-sync'></i></button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <!--
+        <div class="toolbar-Cierre col-sm-12 col-xs-12" hidden><div><div id="adivloading3"><img src="Content/img/loading.gif" alt="loading" width="1%"><span> Cargando Datos...</span></div></div></div>
+        -->
+        <div class="row">
+            <div class="block1">
+                <div class="tablas">
+                    <table id="tablaDespachos" class="table table-hover table-bordered table-striped table-border-blue" width="100%">
+                        <thead class="table-blue">
+                            <tr>
+                                <th>Rut</th>
+                                <th>Factura</th>
+                                <th>Doc.Venta</th>
+                                <th>Pedido Compra</th>
+                                <th>Grupo Art.</th>
+                                <th>Canal</th>
+                                <th>Guia</th>
+                                <th>Material</th>
+                                <th>Material</th>
+                                <th>Lote</th>
+                                <th>Cant.Doc.</th>
+                                <th>Cant.Info.</th>
+                                <th>Neto</th>
+                                <th>Obs.</th>
+                                <th>DocumentoEntrega</th>
+                                <th>Vencimiento</th>
+                                <th>MotivoRechazo</th>
+                                <th>Id.Mer.Pub.</th>
+                                <th>ZZIDMER_E</th>
+                                <th>RutEstab</th>
+                                <th>Destinatario</th>
+                                <th>ServicioSalud</th>
+                                <th>ver PDF</th>
+                                <th>descarga PDF</th>
+                                <th>Expediente</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="block2">
+                <iframe name="_documentoPreview" style="border: 2px solid #4e46e5;"></iframe>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+    </div>
+
+</div>
+
+
+
+
+
+<div class="modal fade" id="_DocumentosProveedor_modal-ver-Expediente" role="dialog" tabindex="-1" aria-labelledby="" data-backdrop="static" style="overflow:auto">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetFormExpedienteVer();">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="">Expediente</h4>
+            </div>
+            <form id="formVerExpediente">
+
+                @Html.AntiForgeryToken()
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+
+                        <iframe name="_expedientePreview" style="border: 2px solid #4e46e5;"></iframe>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="resetFormExpedienteVer();">Salir</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+

@@ -1,61 +1,49 @@
 ﻿
-using System.Web.Mvc;
+using pnacpacam.Models;
 using System;
 using System.Web;
+using System.Web.Mvc;
 using System.Web.Security;
-using pnacpacam.Models;
 
 
 namespace pnacpacam.Controllers
 {
     [Authorize]
-    [SessionExpire]
     [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]
     public class HomeController : Controller
     {
+        [Authorize]
         public ActionResult Index()
         {
-            
-            if (Session["Rut"]!= null)
-            {
-                if (Session["Perfil"].ToString() == "1")
-                {
-                    return View("Index", "Admin/_AdminLayout"); // sin menu reportabilidad
+            if (User.IsInRole("ADM"))
+                return View("Index", "Admin/_AdminLayout");
 
-                }
-                else if (Session["Perfil"].ToString() == "2")
-                {
-                    return View("Index", "administrador/_AdministradorLayout"); // con menu reportabilidad
-                }
-                else if (Session["Perfil"].ToString() == "3")
-                {
-                    return View("Index", "EjecutivoUnidadGestora/_UnidadGestoraLayout");
-                }
-                else if (Session["Perfil"].ToString() == "6")
-                {
-                    return View("Index", "Visitante/_VisitanteLayout");
-                }
-                else {
-                    return View("Index", "EjecutivoUnidadGestora/_Layout");
-                }
-            }
-            else {
-                return RedirectToAction("Index", "Index");
-            }
-            
+            if (User.IsInRole("ADP"))
+                return View("Index", "Admin/_AdminLayout");
+
+            if (User.IsInRole("CON"))
+                return View("Index", "perfilContrato/_ContratoLayout");
+
+            if (User.IsInRole("COP"))
+                return View("Index", "perfilContrato/_ContratoLayout");
+
+            if (User.IsInRole("MIN"))
+                return View("Index", "perfilMinsal/_MinsalLayout");
+
+            if (User.IsInRole("MIP"))
+                return View("Index", "perfilMinsal/_MinsalLayout");
+
+            return RedirectToAction("Index", "Index");
         }
 
-        public JsonResult GetDataUser() {
-            //Funcionario fun = new Funcionario();
-            UsuarioViewModelModify user = new UsuarioViewModelModify();
-            user = user.GetUsuario(Session["Rut"].ToString(), Session["StringConexion"].ToString());
-            /*
-             * dynamic dataUser = new ExpandoObject();
-            dataUser.funcionario = fun.GetFuncionario(Session["Rut"].ToString());
-            dataUser.user = user.GetUsuario(Session["Rut"].ToString());
-            */
-            return Json( user, JsonRequestBehavior.AllowGet);
+    /*
+        public JsonResult GetDataUser()
+        {
+            Usuario user = new Usuario();
+            user = user.GetUsuario(Session["PNACPACAM_RutUsuario"].ToString());
+            return Json(user, JsonRequestBehavior.AllowGet);
         }
+    */
 
         public void LogOut()
         {
