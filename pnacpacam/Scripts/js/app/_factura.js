@@ -440,14 +440,14 @@ function _administraEstados(obj, fila) {
     rol = sessionStorage.getItem("_pnacpacam_Rol");
 
     puedeEjecutarOK = (obj.PuedeEjecutarOK == null) ? "False" : obj.PuedeEjecutarOK
-    if (puedeEjecutarOK == "True") {
+    if (puedeEjecutarOK) {
         boton_OK = prefijoBoton + "," + obj.Estado_OK + "," + fila + ",1);' >" + iconoOK + finBoton;
     } else {
         boton_OK = prefijoBoton + "," + obj.Estado_OK + "," + fila + ",1);' disabled >" + iconoOK + finBoton;
     }
 
     PuedeEjecutarNOOK = obj.PuedeEjecutarNOOK;
-    if (PuedeEjecutarNOOK === "True") {
+    if (PuedeEjecutarNOOK) {
         boton_NOOK = prefijoBoton + "," + obj.Estado_NOOK + "," + fila + ",0);'  >" + iconoNOOK + finBoton;
     } else {
         boton_NOOK = prefijoBoton + "," + obj.Estado_NOOK + "," + fila + ",0);' disabled >" + iconoNOOK + finBoton;
