@@ -160,7 +160,19 @@ function _getFacturas() {
                             ${iconObs}
                         `;
 
-                        if (full.CEstado === "1" ) {
+                        /////////// COMPROBAR ///////////
+
+                        //console.log({
+                        //    factura: full.NFactura,
+                        //    estado: full.CEstado,
+                        //    existeExpediente: full.ExisteExpediente,
+                        //    link: full.linkExpedientes, full
+                        //});
+
+                        /////////// FIN COMPROBAR ///////////
+
+
+                        if (full.CEstado === "1") {
                             return habilitado;
                         } else {
                             return deshabilitado;
@@ -182,33 +194,19 @@ function _getFacturas() {
                             ? 'Ver expediente'
                             : 'Expediente aún no disponible';
 
-//                        if (!full.ExisteExpediente) {
-//                            return '';
-//                        }
-
-
                         return `
-            <a target="_Factura_ExpedientePreviewIFrame"
-               href="${full.linkExpedientes}"
-               onclick="verExpediente(${parseInt(full.LIFNR)}, ${full.NFactura});"
-               title="${titulo}">
-                <i class="fas fa-folder-open action-icon"
-                   style="
-                       color:${colorIcono};
-                       transition: color .2s ease;
-                   "></i>
-            </a>
-        `;
+                                <a target="_Factura_ExpedientePreviewIFrame"
+                                   href="${full.linkExpedientes}"
+                                   onclick="verExpediente(${parseInt(full.LIFNR)}, ${full.NFactura});"
+                                   title="${titulo}">
+                                    <i class="fas fa-folder-open action-icon"
+                                       style="
+                                           color:${colorIcono};
+                                           transition: color .2s ease;
+                                       "></i>
+                                </a>
+                            `;
 
-
-
-                        return `
-      <a target="_Factura_ExpedientePreviewIFrame"
-         href="${full.linkExpedientes}"
-         onclick="verExpediente(${parseInt(full.LIFNR)}, ${full.NFactura});">
-        <i class="fas fa-folder-open action-icon icon-view" style="color:${colorIcono};"
-           title="${full.ExisteExpediente}"></i>
-      </a>`;
                     }
                 }
                 ,
@@ -416,7 +414,7 @@ function actualizarFilaFactura(RutProveedor, Factura, estadoNuevo, botonera) {
 }
 
 function _administraEstados(obj, fila) {
-
+    ///console.log(obj);
     var PuedeEjecutarNOOK = "";
     var boton_NOOK = "";
 
@@ -440,14 +438,16 @@ function _administraEstados(obj, fila) {
     rol = sessionStorage.getItem("_pnacpacam_Rol");
 
     puedeEjecutarOK = (obj.PuedeEjecutarOK == null) ? "False" : obj.PuedeEjecutarOK
-    if (puedeEjecutarOK == "True") {
+
+    //    console.log(puedeEjecutarOK, puedeEjecutarOK == "True");
+    if (Number(puedeEjecutarOK) === 1) {
         boton_OK = prefijoBoton + "," + obj.Estado_OK + "," + fila + ",1);' >" + iconoOK + finBoton;
     } else {
         boton_OK = prefijoBoton + "," + obj.Estado_OK + "," + fila + ",1);' disabled >" + iconoOK + finBoton;
     }
 
     PuedeEjecutarNOOK = obj.PuedeEjecutarNOOK;
-    if (PuedeEjecutarNOOK === "True") {
+    if (Number(PuedeEjecutarNOOK) === 1) {
         boton_NOOK = prefijoBoton + "," + obj.Estado_NOOK + "," + fila + ",0);'  >" + iconoNOOK + finBoton;
     } else {
         boton_NOOK = prefijoBoton + "," + obj.Estado_NOOK + "," + fila + ",0);' disabled >" + iconoNOOK + finBoton;
@@ -459,9 +459,13 @@ function _administraEstados(obj, fila) {
     if (obj.Estado_NOOK == 0) boton_NOOK = "";
 
     botonera = textoEstadoActual;
-    if ((obj.CEstado == 5) && (rol == "MIN")) botonera = botonera + boton_OK + boton_OK_Observaciones + boton_NOOK; // estado actual en 5 es porque esta en revision ejecutivo MINSAL, y el ejecutivo minsal puede aceptar sin observaciones o aceptar con observaciones
-    else botonera = botonera + boton_OK + boton_NOOK;
 
+
+    ////    console.log('CESTADO ', obj.CEstado);
+    ////    console.log('ROL ', rol);
+    if ((obj.CEstado == 5) && (rol == "MIN" || rol == "MIP")) botonera = botonera + boton_OK + boton_OK_Observaciones + boton_NOOK; // estado actual en 5 es porque esta en revision ejecutivo MINSAL, y el ejecutivo minsal puede aceptar sin observaciones o aceptar con observaciones
+    else botonera = botonera + boton_OK + boton_NOOK;
+    ///    console.log('botonera ', botonera );
     if (obj.CEstado == 10) botonera = textoEstadoActual;
 
     return "<div id='" + codigo + "'>" + botonera + "</div>";// + "<p>(" + obj.CEstado +")</p>";
@@ -538,17 +542,28 @@ function putEstadoConfirmado(obj, rut, factura, estadoActual, estadoNuevo, fila,
             url: apiUrl("Proveedor/putEstado"),
             data: json,
             success: function (data) {
+
                 console.log(data);
-                if (!data.success) avisoFinProceso(data.message);
-                if (data.resultado === null) {
-                    _getFacturas();
-                } else {
-                    botonera = _administraEstados(data.resultado, fila);
-                    actualizarFilaFactura(rut, factura, estadoNuevo, {
-                        botonera: botonera
-                    });
+
+                if (!data.success) {
+                    avisoFinProceso(data.message);
+                    return;
                 }
+
+                _getFacturas();
             },
+            //success: function (data) {
+            //    console.log(data);
+            //    if (!data.success) avisoFinProceso(data.message);
+            //    if (data.resultado === null) {
+            //        _getFacturas();
+            //    } else {
+            //        botonera = _administraEstados(data.resultado, fila);
+            //        actualizarFilaFactura(rut, factura, estadoNuevo, {
+            //            botonera: botonera
+            //        });
+            //    }
+            //},
             error: function (xhr, status, error) {
 
                 let mensaje = "No se pudo actualizar el estado de la factura.";
