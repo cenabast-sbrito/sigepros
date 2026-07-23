@@ -34,13 +34,13 @@ namespace PNacPacam
         {
             SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["pnacpacam"].ConnectionString);
 
-            string procGetGuias = "[dbo].[proc_Guias_Obtener] @nFactura, @excluyeSS";
+            string procGetGuias = "[dbo].[proc_Guias_Obtener]";
 
             SqlCommand cmd = new SqlCommand(procGetGuias, con);
+            cmd.Parameters.AddWithValue("@rutProveedor", rut);
             cmd.Parameters.AddWithValue("@nFactura", nFactura);
             cmd.Parameters.AddWithValue("@excluyeSS", incluye ? 1 : 0); // excluir el servicio de salud mejora el tiempo de ejecución de la query Guías
-
-            cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.StoredProcedure;
             //cmd.CommandTimeout = 1; prueba de agotamiento en el tiempo de espera valor en 1  segundo
 
             SqlDataReader reader;
@@ -180,11 +180,8 @@ namespace PNacPacam
                 var prefijo = ConfigurationManager.AppSettings["prefijoNombreComision"].ToString();
 
                 SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["pnacpacam"].ConnectionString);
-                SqlCommand cmd = new SqlCommand("[dbo].[proc_Facturas_Obtener]  @rol , @rutProveedor, @NFactura, @Ano, @CEstado, @esHistorico ", con);
-
-                rutProveedor = quitarEspaciosYCerosIzquierda(rutProveedor, "");
-                nFactura = quitarEspaciosYCerosIzquierda(nFactura, "");
-                anio = quitarEspaciosYCerosIzquierda(anio, "");
+                SqlCommand cmd = new SqlCommand("proc_Facturas_Obtener", con);
+                cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.AddWithValue("@rol", rol);
                 cmd.Parameters.AddWithValue("@rutProveedor", rutProveedor);

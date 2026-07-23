@@ -205,8 +205,7 @@ function _getFacturas() {
                             `;
 
                     }
-                }
-                ,
+                },
                 {
                     "render": function (data, type, full, meta) {
                         return `<a href='#' class='button' onclick='verGuias(${parseInt(full.LIFNR)},${full.NFactura});'

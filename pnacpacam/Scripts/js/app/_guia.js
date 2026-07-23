@@ -4,7 +4,6 @@
 }
 
 async function compruebaTablaSAP_ASYNC(rut, factura, accion) {
-
     try {
         const res = await $.ajax({
             type: "GET",
@@ -18,7 +17,7 @@ async function compruebaTablaSAP_ASYNC(rut, factura, accion) {
 
         if (accion === 'verGuias') {
             getGuiasByFactura(rut, factura);
-            anchorON('getGuias_' + rut + factura);
+            anchorON('getGuias_' + rut + factura); $('#_guiaPreview').attr('src', 'about:blank');
             $('#_Factura_Guias').modal('show');
         }
         else if (accion === 'getExpediente') {
@@ -46,13 +45,13 @@ async function compruebaTablaSAP_ASYNC(rut, factura, accion) {
 
 
 function getGuiasByFactura(rut, factura) {
-
+    
     let incluirDatosAdicionales = document.getElementById('incluirDatosAdicionales');
     
     $(".loader_Tablas").fadeIn("slow");
 
     var json = {
-        rutProveedor: rut,
+        rut: rut,
         factura: factura,
         incluye: incluirDatosAdicionales.checked
     }
